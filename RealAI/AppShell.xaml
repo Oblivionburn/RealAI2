@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="RealAI.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:RealAI.Pages"
+    Shell.FlyoutBehavior="Flyout"
+    FlyoutBackgroundColor="#212121"
+    BackgroundColor="#212121">
+
+    <Shell.Resources>
+        <Style Class="MenuItemStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="BackgroundColor" Value="#212121" />
+            <Setter Property="HeightRequest" Value="40" />
+        </Style>
+    </Shell.Resources>
+
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid ColumnDefinitions="74,*" RowDefinitions="60,*" BackgroundColor="#212121">
+                <Label Grid.Column="1" Text="{Binding Title}" TextColor="White" BackgroundColor="#212121" FontSize="24"/>
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
+
+    <FlyoutItem Title="Home">
+        <Tab>
+            <ShellContent
+                Title="Talk"
+                ContentTemplate="{DataTemplate local:Talk}"
+                Route="Talk"
+            />
+            <ShellContent
+                Title="View Thinking"
+                ContentTemplate="{DataTemplate local:Thinking}"
+                Route="Thinking"
+            />
+        </Tab>
+    </FlyoutItem>
+    <FlyoutItem Title="Brains">
+        <ShellContent
+            Title="Brains"
+            ContentTemplate="{DataTemplate local:Brains}"
+            Route="Brains"
+        />
+    </FlyoutItem>
+    <FlyoutItem Title="Options">
+        <ShellContent
+            Title="Options"
+            ContentTemplate="{DataTemplate local:Options}"
+            Route="Options"
+        />
+    </FlyoutItem>
+    <FlyoutItem Title="Fix Spelling">
+        <ShellContent
+            Title="Fix Spelling"
+            ContentTemplate="{DataTemplate local:FixSpelling}"
+            Route="FixSpelling"
+        />
+    </FlyoutItem>
+    <MenuItem
+        Text="Wipe Memory"
+        Clicked="WipeMemory"
+        StyleClass="MenuItemStyle"
+    />
+</Shell>
