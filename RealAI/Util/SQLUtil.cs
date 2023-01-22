@@ -9,22 +9,23 @@ namespace RealAI.Util
         public static string BrainFile;
         public static List<string> BrainList = new List<string>();
 
-        public static SqliteConnection GetConnection(string fileName)
+        public static async Task<SqliteConnection> GetConnection(string fileName)
         {
             try
             {
-                string path = AppUtil.GetPath(fileName + ".brain");
+                string path = await AppUtil.GetPath(fileName + ".brain");
                 return new SqliteConnection("Data Source=" + path);
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.GetSqlConnection", ex.Message, ex.StackTrace);
             }
 
             return null;
         }
 
-        public static string NewBrain(string fileName)
+        public static async Task<string> NewBrain(string fileName)
         {
             try
             {
@@ -122,31 +123,33 @@ namespace RealAI.Util
 
                 BrainFile = fileName;
 
-                BulkExecute(commands);
+                await BulkExecute(commands);
 
                 BrainList.Add(fileName);
-                File.WriteAllLines(AppUtil.GetPath("BrainList.txt"), BrainList);
+                string file = await AppUtil.GetPath("BrainList.txt");
+                File.WriteAllLines(file, BrainList);
 
                 return "SUCCESS";
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SQLUtil.NewBrain", ex.Message, ex.StackTrace);
                 return ex.Message;
             }
         }
 
-        public static string DeleteBrain(string fileName)
+        public static async Task<string> DeleteBrain(string fileName)
         {
             try
             {
-                string file = AppUtil.GetPath(fileName + ".brain");
+                string file = await AppUtil.GetPath(fileName + ".brain");
                 if (File.Exists(file))
                 {
                     File.Delete(file);
                     BrainList.Remove(fileName);
 
-                    string historyFolder = AppUtil.GetHistoryPath(fileName);
+                    string historyFolder = await AppUtil.GetHistoryPath(fileName);
                     if (Directory.Exists(historyFolder))
                     {
                         Directory.Delete(historyFolder, true);
@@ -167,19 +170,20 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SQLUtil.NewBrain", ex.Message, ex.StackTrace);
                 return ex.Message;
             }
         }
 
-        public static bool BulkExecute(List<SqliteCommand> commands)
+        public static async Task<bool> BulkExecute(List<SqliteCommand> commands)
         {
             try
             {
                 if (!string.IsNullOrEmpty(BrainFile))
                 {
-                    string connString = GetConnection(BrainFile).ConnectionString;
-                    using (SqliteConnection con = new SqliteConnection(connString))
+                    SqliteConnection connection = await GetConnection(BrainFile);
+                    using (SqliteConnection con = new SqliteConnection(connection.ConnectionString))
                     {
                         con.Open();
 
@@ -211,20 +215,21 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.BulkQuery", ex.Message, ex.StackTrace);
             }
 
             return false;
         }
 
-        public static bool Execute(SqliteCommand command)
+        public static async Task<bool> Execute(SqliteCommand command)
         {
             try
             {
                 if (!string.IsNullOrEmpty(BrainFile))
                 {
-                    string connString = GetConnection(BrainFile).ConnectionString;
-                    using (SqliteConnection con = new SqliteConnection(connString))
+                    SqliteConnection connection = await GetConnection(BrainFile);
+                    using (SqliteConnection con = new SqliteConnection(connection.ConnectionString))
                     {
                         con.Open();
 
@@ -253,13 +258,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Execute", ex.Message, ex.StackTrace);
             }
 
             return false;
         }
 
-        public static DataTable GetData(string sql, SqliteParameter[] parameters)
+        public static async Task<DataTable> GetData(string sql, SqliteParameter[] parameters)
         {
             DataTable data = new DataTable();
 
@@ -267,8 +273,8 @@ namespace RealAI.Util
             {
                 if (sql.Length > 0)
                 {
-                    string connString = GetConnection(BrainFile).ConnectionString;
-                    using (SqliteConnection con = new SqliteConnection(connString))
+                    SqliteConnection connection = await GetConnection(BrainFile);
+                    using (SqliteConnection con = new SqliteConnection(connection.ConnectionString))
                     {
                         con.Open();
 
@@ -298,13 +304,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.GetData", ex.Message, ex.StackTrace);
             }
 
             return data;
         }
 
-        public static List<SqliteCommand> Wipe()
+        public static async Task<List<SqliteCommand>> Wipe()
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -318,13 +325,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Wipe", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static int Get_InputPriority(string input)
+        public static async Task<int> Get_InputPriority(string input)
         {
             try
             {
@@ -336,7 +344,7 @@ namespace RealAI.Util
                     parm.DbType = DbType.String;
                     parameters.Add(parm);
 
-                    DataTable data = GetData("SELECT Priority FROM Inputs WHERE Input = @input", parameters.ToArray());
+                    DataTable data = await GetData("SELECT Priority FROM Inputs WHERE Input = @input", parameters.ToArray());
                     if (data.Rows.Count > 0)
                     {
                         return int.Parse(data.Rows[0].ItemArray[0].ToString());
@@ -345,13 +353,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_InputPriority", ex.Message, ex.StackTrace);
             }
 
             return 0;
         }
 
-        public static bool InputHasWord(string word)
+        public static async Task<bool> InputHasWord(string word)
         {
             try
             {
@@ -363,19 +372,20 @@ namespace RealAI.Util
                     parm.DbType = DbType.String;
                     parameters.Add(parm);
 
-                    DataTable data = GetData("SELECT Input FROM Inputs WHERE INSTR(Input, @word) > 0", parameters.ToArray());
+                    DataTable data = await GetData("SELECT Input FROM Inputs WHERE INSTR(Input, @word) > 0", parameters.ToArray());
                     return data.Rows.Count > 0;
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.InputHasWord", ex.Message, ex.StackTrace);
             }
 
             return false;
         }
 
-        public static List<SqliteCommand> Add_NewInput(string input)
+        public static async Task<List<SqliteCommand>> Add_NewInput(string input)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -395,13 +405,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Add_NewInput", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Increase_InputPriorities(string input)
+        public static async Task<List<SqliteCommand>> Increase_InputPriorities(string input)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -421,13 +432,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Increase_InputPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Decrease_InputPriorities(string input)
+        public static async Task<List<SqliteCommand>> Decrease_InputPriorities(string input)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -450,19 +462,20 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Decrease_InputPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<string> Get_Words()
+        public static async Task<List<string>> Get_Words()
         {
             List<string> words = new List<string>();
 
             try
             {
-                DataTable data = GetData("SELECT Word FROM Words", null);
+                DataTable data = await GetData("SELECT Word FROM Words", null);
 
                 foreach (DataRow row in data.Rows)
                 {
@@ -472,19 +485,20 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_Words", ex.Message, ex.StackTrace);
             }
 
             return words;
         }
 
-        public static string Get_RandomWord()
+        public static async Task<string> Get_RandomWord()
         {
             string word = "";
 
             try
             {
-                DataTable data = GetData("SELECT Word FROM Words ORDER BY RANDOM() LIMIT 1", null);
+                DataTable data = await GetData("SELECT Word FROM Words ORDER BY RANDOM() LIMIT 1", null);
 
                 if (data.Rows.Count > 0)
                 {
@@ -493,13 +507,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_RandomWord", ex.Message, ex.StackTrace);
             }
 
             return word;
         }
 
-        public static string Get_MinWord(string[] words)
+        public static async Task<string> Get_MinWord(string[] words)
         {
             string word = "";
 
@@ -509,15 +524,15 @@ namespace RealAI.Util
                 {
                     List<string> min_words = new List<string>();
 
-                    int priority = Get_MinPriority_Words(words);
+                    int priority = await Get_MinPriority_Words(words);
 
-                    string wordSet = WordArray_To_String(words);
+                    string wordSet = await WordArray_To_String(words);
 
                     SqliteParameter parm = new SqliteParameter("@priority", priority);
                     parm.DbType = DbType.Int32;
 
                     SqliteParameter[] parms = { parm };
-                    DataTable data = GetData("SELECT Word FROM Words WHERE Priority = @priority AND Word IN (" + wordSet + ")", parms);
+                    DataTable data = await GetData("SELECT Word FROM Words WHERE Priority = @priority AND Word IN (" + wordSet + ")", parms);
 
                     foreach (DataRow row in data.Rows)
                     {
@@ -535,13 +550,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_MinWord", ex.Message, ex.StackTrace);
             }
 
             return word;
         }
 
-        public static string[] Get_MinWords(string[] words)
+        public static async Task<string[]> Get_MinWords(string[] words)
         {
             List<string> min_words = new List<string>();
 
@@ -549,15 +565,15 @@ namespace RealAI.Util
             {
                 if (words.Length > 0)
                 {
-                    int priority = Get_MinPriority_Words(words);
+                    int priority = await Get_MinPriority_Words(words);
 
-                    string wordSet = WordArray_To_String(words);
+                    string wordSet = await WordArray_To_String(words);
 
                     SqliteParameter parm = new SqliteParameter("@priority", priority);
                     parm.DbType = DbType.Int32;
 
                     SqliteParameter[] parms = { parm };
-                    DataTable data = GetData("SELECT Word FROM Words WHERE Priority = @priority AND Word IN (" + wordSet + ")", parms);
+                    DataTable data = await GetData("SELECT Word FROM Words WHERE Priority = @priority AND Word IN (" + wordSet + ")", parms);
 
                     int total = data.Rows.Count;
 
@@ -570,13 +586,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_MinWords", ex.Message, ex.StackTrace);
             }
 
             return min_words.ToArray();
         }
 
-        public static int Get_MinPriority_Words(string[] words)
+        public static async Task<int> Get_MinPriority_Words(string[] words)
         {
             int min = 0;
 
@@ -584,9 +601,9 @@ namespace RealAI.Util
             {
                 if (words.Length > 0)
                 {
-                    string wordSet = WordArray_To_String(words);
+                    string wordSet = await WordArray_To_String(words);
 
-                    DataTable data = GetData("SELECT MIN(Priority) AS MinPriority FROM Words WHERE Word IN (" + wordSet + ")", null);
+                    DataTable data = await GetData("SELECT MIN(Priority) AS MinPriority FROM Words WHERE Word IN (" + wordSet + ")", null);
 
                     if (data.Rows.Count > 0 &&
                         data.Rows[0].ItemArray.Length > 0)
@@ -601,13 +618,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_MinPriority_Words", ex.Message, ex.StackTrace);
             }
 
             return min;
         }
 
-        public static List<SqliteCommand> Add_Words(string[] words)
+        public static async Task<List<SqliteCommand>> Add_Words(string[] words)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -627,13 +645,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Add_Words", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static int Get_Word_Priority(string word)
+        public static async Task<int> Get_Word_Priority(string word)
         {
             int priority = 0;
 
@@ -646,7 +665,7 @@ namespace RealAI.Util
 
                     SqliteParameter[] parms = { parm };
 
-                    DataTable data = GetData("SELECT Priority FROM Words WHERE Word = @word", parms);
+                    DataTable data = await GetData("SELECT Priority FROM Words WHERE Word = @word", parms);
 
                     if (data.Rows.Count > 0 &&
                         data.Rows[0].ItemArray.Length > 0)
@@ -661,13 +680,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_Word_Priority", ex.Message, ex.StackTrace);
             }
 
             return priority;
         }
 
-        public static List<SqliteCommand> Increase_WordPriorities(string[] words)
+        public static async Task<List<SqliteCommand>> Increase_WordPriorities(string[] words)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -687,13 +707,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Increase_WordPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Decrease_WordPriorities(string[] words)
+        public static async Task<List<SqliteCommand>> Decrease_WordPriorities(string[] words)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -716,13 +737,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Decrease_WordPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static string Get_PreWord(List<string> words, bool for_thinking)
+        public static async Task<string> Get_PreWord(List<string> words, bool for_thinking)
         {
             string result = "";
 
@@ -752,7 +774,7 @@ namespace RealAI.Util
                         distance_parm.DbType = DbType.String;
 
                         SqliteParameter[] parms = { word_parm, distance_parm };
-                        DataTable data = GetData("SELECT * FROM PreWords WHERE Word = @word AND Distance = @distance", parms);
+                        DataTable data = await GetData("SELECT * FROM PreWords WHERE Word = @word AND Distance = @distance", parms);
 
                         foreach (DataRow row in data.Rows)
                         {
@@ -840,13 +862,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_PreWord", ex.Message, ex.StackTrace);
             }
 
             return result;
         }
 
-        public static List<SqliteCommand> Add_PreWords(string[] words, string[] prewords, int[] distances)
+        public static async Task<List<SqliteCommand>> Add_PreWords(string[] words, string[] prewords, int[] distances)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -878,13 +901,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Add_PreWords", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Increase_PreWordPriorities(string[] words, string[] prewords, int[] distances)
+        public static async Task<List<SqliteCommand>> Increase_PreWordPriorities(string[] words, string[] prewords, int[] distances)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -916,13 +940,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Increase_PreWordPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Decrease_PreWordPriorities(string[] words, string[] prewords, int[] distances)
+        public static async Task<List<SqliteCommand>> Decrease_PreWordPriorities(string[] words, string[] prewords, int[] distances)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -958,13 +983,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Decrease_PreWordPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static string Get_ProWord(List<string> words, bool for_thinking)
+        public static async Task<string> Get_ProWord(List<string> words, bool for_thinking)
         {
             string result = "";
 
@@ -994,7 +1020,7 @@ namespace RealAI.Util
                         distance_parm.DbType = DbType.String;
 
                         SqliteParameter[] parms = { word_parm, distance_parm };
-                        DataTable data = GetData("SELECT * FROM ProWords WHERE Word = @word AND Distance = @distance", parms);
+                        DataTable data = await GetData("SELECT * FROM ProWords WHERE Word = @word AND Distance = @distance", parms);
 
                         foreach (DataRow row in data.Rows)
                         {
@@ -1082,13 +1108,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_ProWord", ex.Message, ex.StackTrace);
             }
 
             return result;
         }
 
-        public static List<SqliteCommand> Add_ProWords(string[] words, string[] prowords, int[] distances)
+        public static async Task<List<SqliteCommand>> Add_ProWords(string[] words, string[] prowords, int[] distances)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1120,13 +1147,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Add_ProWords", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Increase_ProWordPriorities(string[] words, string[] prowords, int[] distances)
+        public static async Task<List<SqliteCommand>> Increase_ProWordPriorities(string[] words, string[] prowords, int[] distances)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1158,13 +1186,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Increase_ProWordPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Decrease_ProWordPriorities(string[] words, string[] prowords, int[] distances)
+        public static async Task<List<SqliteCommand>> Decrease_ProWordPriorities(string[] words, string[] prowords, int[] distances)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1200,13 +1229,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Decrease_ProWordPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> AddTopics(string input, string[] words)
+        public static async Task<List<SqliteCommand>> AddTopics(string input, string[] words)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1239,13 +1269,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.AddTopics", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Increase_TopicPriorities(string input, string[] words)
+        public static async Task<List<SqliteCommand>> Increase_TopicPriorities(string input, string[] words)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1263,11 +1294,7 @@ namespace RealAI.Util
                         word_parm.DbType = DbType.String;
 
                         //Increase priority for existing topics
-                        string sql = @"
-                        UPDATE Topics
-                        SET Priority = Priority + 1
-                        WHERE Input = @input AND Topic = @word
-                        ";
+                        string sql = "UPDATE Topics SET Priority = Priority + 1 WHERE Input = @input AND Topic = @word";
 
                         SqliteCommand cmd = new SqliteCommand(sql);
                         cmd.Parameters.Add(input_parm);
@@ -1278,13 +1305,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Increase_TopicPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Decrease_TopicPriorities(string input, string[] words)
+        public static async Task<List<SqliteCommand>> Decrease_TopicPriorities(string input, string[] words)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1302,11 +1330,7 @@ namespace RealAI.Util
                         word_parm.DbType = DbType.String;
 
                         //Increase priority for existing topics
-                        string sql = @"
-                        UPDATE Topics
-                        SET Priority = Priority - 1
-                        WHERE Input = @input AND Topic = @word
-                        ";
+                        string sql = "UPDATE Topics SET Priority = Priority - 1 WHERE Input = @input AND Topic = @word";
 
                         SqliteCommand cmd = new SqliteCommand(sql);
                         cmd.Parameters.Add(input_parm);
@@ -1321,13 +1345,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Decrease_TopicPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Decrease_Topics_Unmatched(string input, string[] words)
+        public static async Task<List<SqliteCommand>> Decrease_Topics_Unmatched(string input, string[] words)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1339,10 +1364,8 @@ namespace RealAI.Util
                     SqliteParameter input_parm = new SqliteParameter("@input", input);
                     input_parm.DbType = DbType.String;
 
-                    string sql = @"
-                    UPDATE Topics
-                    SET Priority = Priority - 1
-                    WHERE Input = @input AND Topic NOT IN (" + WordArray_To_String(words) + ")";
+                    string word_string = await WordArray_To_String(words);
+                    string sql = "UPDATE Topics SET Priority = Priority - 1 WHERE Input = @input AND Topic NOT IN (" + word_string + ")";
 
                     SqliteCommand cmd = new SqliteCommand(sql);
                     cmd.Parameters.Add(input_parm);
@@ -1351,13 +1374,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Decrease_Topics_Unmatched", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Clean_Topics(string input)
+        public static async Task<List<SqliteCommand>> Clean_Topics(string input)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1377,13 +1401,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Clean_Topics", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static bool Topics_InputHasWord(string word)
+        public static async Task<bool> Topics_InputHasWord(string word)
         {
             try
             {
@@ -1395,19 +1420,20 @@ namespace RealAI.Util
                     parm.DbType = DbType.String;
                     parameters.Add(parm);
 
-                    DataTable data = GetData("SELECT Input FROM Topics WHERE INSTR(Input, @word) > 0", parameters.ToArray());
+                    DataTable data = await GetData("SELECT Input FROM Topics WHERE INSTR(Input, @word) > 0", parameters.ToArray());
                     return data.Rows.Count > 0;
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Topics_InputHasWord", ex.Message, ex.StackTrace);
             }
 
             return false;
         }
 
-        public static string[] Get_OutputsFromTopics(string[] words)
+        public static async Task<string[]> Get_OutputsFromTopics(string[] words)
         {
             List<string> outputs = new List<string>();
 
@@ -1415,10 +1441,10 @@ namespace RealAI.Util
             {
                 if (words.Length > 0)
                 {
-                    string wordSet = WordArray_To_String(words);
+                    string wordSet = await WordArray_To_String(words);
 
                     //Get all the inputs that contain a matching topic from the wordset
-                    DataTable inputsData = GetData("SELECT DISTINCT Input FROM Topics WHERE Topic IN (" + wordSet + ")", null);
+                    DataTable inputsData = await GetData("SELECT DISTINCT Input FROM Topics WHERE Topic IN (" + wordSet + ")", null);
 
                     int total = inputsData.Rows.Count;
 
@@ -1433,13 +1459,13 @@ namespace RealAI.Util
                         parameters.Add(parm);
 
                         //Get all the outputs for the given input
-                        DataTable outputData = GetData("SELECT DISTINCT Output FROM Outputs WHERE Input = @input", parameters.ToArray());
+                        DataTable outputData = await GetData("SELECT DISTINCT Output FROM Outputs WHERE Input = @input", parameters.ToArray());
                         if (outputData.Rows.Count > 0)
                         {
                             string output = outputData.Rows[0].ItemArray[0].ToString();
 
                             //Get the priority of the output from the Input table
-                            int priority = Get_InputPriority(output);
+                            int priority = await Get_InputPriority(output);
 
                             //Add output/priority pair as a possibility
                             if (!output_priority.ContainsKey(output))
@@ -1474,13 +1500,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_OutputsFromTopics", ex.Message, ex.StackTrace);
             }
 
             return outputs.ToArray();
         }
 
-        public static List<SqliteCommand> Add_Outputs(string input, string output)
+        public static async Task<List<SqliteCommand>> Add_Outputs(string input, string output)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1508,13 +1535,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Add_Outputs", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Increase_OutputPriorities(string input, string output)
+        public static async Task<List<SqliteCommand>> Increase_OutputPriorities(string input, string output)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1542,13 +1570,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Increase_OutputPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Increase_OutputPriorities(string output)
+        public static async Task<List<SqliteCommand>> Increase_OutputPriorities(string output)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1571,13 +1600,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Increase_OutputPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> Decrease_OutputPriorities(string output)
+        public static async Task<List<SqliteCommand>> Decrease_OutputPriorities(string output)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -1604,13 +1634,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Decrease_OutputPriorities", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static string[] Get_OutputsFromInput(string input)
+        public static async Task<string[]> Get_OutputsFromInput(string input)
         {
             List<string> outputs = new List<string>();
 
@@ -1622,7 +1653,7 @@ namespace RealAI.Util
                     input_parm.DbType = DbType.String;
 
                     SqliteParameter[] parms = { input_parm };
-                    DataTable data = GetData("SELECT Output FROM Outputs WHERE Input = @input", parms);
+                    DataTable data = await GetData("SELECT Output FROM Outputs WHERE Input = @input", parms);
 
                     int total = data.Rows.Count;
 
@@ -1634,13 +1665,14 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Get_OutputsFromInput", ex.Message, ex.StackTrace);
             }
 
             return outputs.ToArray();
         }
 
-        public static bool Output_InputHasWord(string word)
+        public static async Task<bool> Output_InputHasWord(string word)
         {
             try
             {
@@ -1652,19 +1684,20 @@ namespace RealAI.Util
                     parm.DbType = DbType.String;
                     parameters.Add(parm);
 
-                    DataTable data = GetData("SELECT Input FROM Outputs WHERE INSTR(Input, @word) > 0", parameters.ToArray());
+                    DataTable data = await GetData("SELECT Input FROM Outputs WHERE INSTR(Input, @word) > 0", parameters.ToArray());
                     return data.Rows.Count > 0;
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Output_InputHasWord", ex.Message, ex.StackTrace);
             }
 
             return false;
         }
 
-        public static bool Output_OutputHasWord(string word)
+        public static async Task<bool> Output_OutputHasWord(string word)
         {
             try
             {
@@ -1676,19 +1709,20 @@ namespace RealAI.Util
                     parm.DbType = DbType.String;
                     parameters.Add(parm);
 
-                    DataTable data = GetData("SELECT Output FROM Outputs WHERE INSTR(Output, @word) > 0", parameters.ToArray());
+                    DataTable data = await GetData("SELECT Output FROM Outputs WHERE INSTR(Output, @word) > 0", parameters.ToArray());
                     return data.Rows.Count > 0;
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.Output_OutputHasWord", ex.Message, ex.StackTrace);
             }
 
             return false;
         }
 
-        public static string WordArray_To_String(string[] words)
+        public static async Task<string> WordArray_To_String(string[] words)
         {
             string wordSet = "";
 
@@ -1723,6 +1757,7 @@ namespace RealAI.Util
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("SqlUtil.WordArray_To_String", ex.Message, ex.StackTrace);
             }
 

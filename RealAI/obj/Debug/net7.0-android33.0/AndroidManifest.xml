@@ -7,7 +7,8 @@
     -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.oblivionburn.realai2" android:installLocation="internalOnly" android:versionCode="42" android:versionName="2.0">
   <uses-permission android:name="android.permission.INTERNET" />
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
   <application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true" android:label="Real AI" android:name="crc64fdbbc160b644f08f.MainApplication" android:debuggable="true" android:extractNativeLibs="true">
     <activity android:configChanges="density|orientation|smallestScreenSize|screenLayout|screenSize|uiMode" android:theme="@style/Maui.SplashTheme" android:name="crc64fdbbc160b644f08f.MainActivity" android:exported="true">
       <intent-filter>
@@ -26,5 +27,5 @@
     <service android:name="crc64396a3fe5f8138e3f.KeepAliveService" />
     <provider android:name="mono.MonoRuntimeProvider" android:exported="false" android:initOrder="1999999999" android:authorities="com.oblivionburn.realai2.mono.MonoRuntimeProvider.__mono_init__" />
   </application>
-  <uses-sdk android:minSdkVersion="33" android:targetSdkVersion="33" />
+  <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="33" />
 </manifest>

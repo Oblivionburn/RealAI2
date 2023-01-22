@@ -17,128 +17,164 @@ public partial class Talk : ContentPage
     public Talk()
 	{
 		InitializeComponent();
-
-        btn_NewSession = new Button();
-        btn_NewSession.Text = "New Session";
-        btn_NewSession.Clicked += OnNewSessionClicked;
-        btn_NewSession.HorizontalOptions = LayoutOptions.Fill;
-        btn_NewSession.VerticalOptions = LayoutOptions.Fill;
-
-        txt_Output = new Editor();
-        txt_Output.IsReadOnly = true;
-        txt_Output.FontSize = 18;
-        txt_Output.HorizontalOptions = LayoutOptions.Fill;
-        txt_Output.VerticalOptions = LayoutOptions.Fill;
-
-        txt_Input = new Entry();
-        txt_Input.FontSize = 20;
-        txt_Input.Placeholder = "Type input here";
-        txt_Input.Completed += OnInputCompleted;
-        txt_Input.HorizontalOptions = LayoutOptions.Fill;
-        txt_Input.VerticalOptions = LayoutOptions.Fill;
-
-        btn_Enter = new Button();
-        btn_Enter.Text = "Enter";
-        btn_Enter.Clicked += OnEnterClicked;
-        btn_Enter.HorizontalOptions = LayoutOptions.Fill;
-        btn_Enter.VerticalOptions = LayoutOptions.Fill;
-
-        btn_Encourage = new Button();
-        btn_Encourage.Text = "Encourage";
-        btn_Encourage.Clicked += OnEncourageClicked;
-        btn_Encourage.HorizontalOptions = LayoutOptions.Fill;
-        btn_Encourage.VerticalOptions = LayoutOptions.Fill;
-
-        btn_Discourage = new Button();
-        btn_Discourage.Text = "Discourage";
-        btn_Discourage.Clicked += OnDiscourageClicked;
-        btn_Discourage.HorizontalOptions = LayoutOptions.Fill;
-        btn_Discourage.VerticalOptions = LayoutOptions.Fill;
-
-        LoadGrid();
-
-        AttentionTimer = new System.Timers.Timer();
-        AttentionTimer.Interval = Options.AttentionSpan * 1000;
-        AttentionTimer.Elapsed += AttentionTimer_Elapsed;
-        AttentionTimer.Start();
+        InitControls();
     }
 
-    private void LoadGrid()
+    private async void InitControls()
     {
-        Grid grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition());
-        grid.ColumnDefinitions.Add(new ColumnDefinition());
-        grid.ColumnDefinitions.Add(new ColumnDefinition());
-        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        try
+        {
+            btn_NewSession = new Button();
+            btn_NewSession.Text = "New Session";
+            btn_NewSession.Clicked += OnNewSessionClicked;
+            btn_NewSession.HorizontalOptions = LayoutOptions.Fill;
+            btn_NewSession.VerticalOptions = LayoutOptions.Fill;
 
-        //New Session
-        int row = 0;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.18, GridUnitType.Star) });
-        BoxView new_box = new BoxView();
-        grid.Add(new_box, 0, row);
-        Grid.SetColumnSpan(new_box, 4);
+            txt_Output = new Editor();
+            txt_Output.IsReadOnly = true;
+            txt_Output.FontSize = 18;
+            txt_Output.HorizontalOptions = LayoutOptions.Fill;
+            txt_Output.VerticalOptions = LayoutOptions.Fill;
 
-        grid.Add(btn_NewSession, 0, row);
-        Grid.SetColumnSpan(btn_NewSession, 4);
+            txt_Input = new Entry();
+            txt_Input.FontSize = 20;
+            txt_Input.Placeholder = "Type input here";
+            txt_Input.Completed += OnInputCompleted;
+            txt_Input.HorizontalTextAlignment = TextAlignment.Start;
+            txt_Input.VerticalTextAlignment = TextAlignment.Center;
+            txt_Input.HorizontalOptions = LayoutOptions.Fill;
+            txt_Input.VerticalOptions = LayoutOptions.Fill;
 
-        //Output
-        row++;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(2, GridUnitType.Star) });
-        BoxView output_box = new BoxView();
-        grid.Add(output_box, 0, row);
-        Grid.SetColumnSpan(output_box, 4);
+            btn_Enter = new Button();
+            btn_Enter.Text = "Enter";
+            btn_Enter.Clicked += OnEnterClicked;
+            btn_Enter.HorizontalOptions = LayoutOptions.Fill;
+            btn_Enter.VerticalOptions = LayoutOptions.Fill;
 
-        grid.Add(txt_Output, 0, row);
-        Grid.SetColumnSpan(txt_Output, 4);
+            btn_Encourage = new Button();
+            btn_Encourage.Text = "Encourage";
+            btn_Encourage.Clicked += OnEncourageClicked;
+            btn_Encourage.HorizontalOptions = LayoutOptions.Fill;
+            btn_Encourage.VerticalOptions = LayoutOptions.Fill;
 
-        //Input and Enter
-        row++;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.18, GridUnitType.Star) });
-        BoxView input_box = new BoxView();
-        grid.Add(input_box, 0, row);
-        Grid.SetColumnSpan(input_box, 3);
+            btn_Discourage = new Button();
+            btn_Discourage.Text = "Discourage";
+            btn_Discourage.Clicked += OnDiscourageClicked;
+            btn_Discourage.HorizontalOptions = LayoutOptions.Fill;
+            btn_Discourage.VerticalOptions = LayoutOptions.Fill;
 
-        grid.Add(txt_Input, 0, row);
-        Grid.SetColumnSpan(txt_Input, 3);
+            LoadGrid();
 
-        BoxView enter_box = new BoxView();
-        grid.Add(enter_box, 3, row);
-        grid.Add(btn_Enter, 3, row);
+            AttentionTimer = new System.Timers.Timer();
+            AttentionTimer.Interval = Options.AttentionSpan * 1000;
+            AttentionTimer.Elapsed += AttentionTimer_Elapsed;
+            AttentionTimer.Start();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+            Logger.AddLog("Talk.InitControls", ex.Message, ex.StackTrace);
+        }
+    }
 
-        //Empty space between Input/Enter and Encourage/Discourage
-        row++;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.1, GridUnitType.Star) });
-        BoxView empty_box = new BoxView();
-        grid.Add(empty_box, 0, row);
-        Grid.SetColumnSpan(empty_box, 4);
+    private async void LoadGrid()
+    {
+        try
+        {
+            Grid grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
 
-        //Encourage and Discourage
-        row++;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.18, GridUnitType.Star) });
-        BoxView encourage_box = new BoxView();
-        grid.Add(encourage_box, 0, row);
-        Grid.SetColumnSpan(encourage_box, 2);
+            //New Session
+            int row = 0;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView new_box = new BoxView();
+            grid.Add(new_box, 0, row);
+            Grid.SetColumnSpan(new_box, 8);
 
-        grid.Add(btn_Encourage, 0, row);
-        Grid.SetColumnSpan(btn_Encourage, 2);
+            grid.Add(btn_NewSession, 0, row);
+            Grid.SetColumnSpan(btn_NewSession, 8);
 
-        BoxView discourage_box = new BoxView();
-        grid.Add(discourage_box, 2, row);
-        Grid.SetColumnSpan(discourage_box, 2);
+            //Output
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(2, GridUnitType.Star) });
+            BoxView output_box = new BoxView();
+            grid.Add(output_box, 0, row);
+            Grid.SetColumnSpan(output_box, 8);
 
-        grid.Add(btn_Discourage, 2, row);
-        Grid.SetColumnSpan(btn_Discourage, 2);
+            grid.Add(txt_Output, 0, row);
+            Grid.SetColumnSpan(txt_Output, 8);
 
-        //Empty space underneath to push everything up
-        row++;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.58, GridUnitType.Star) });
-        BoxView empty_box2 = new BoxView();
-        grid.Add(empty_box2, 0, row);
-        Grid.SetColumnSpan(empty_box2, 4);
+            //Empty space between Output and Input/Enter
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.1, GridUnitType.Star) });
+            BoxView first_empty_box = new BoxView();
+            grid.Add(first_empty_box, 0, row);
+            Grid.SetColumnSpan(first_empty_box, 8);
 
-        Content = grid;
+            //Input and Enter
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.3, GridUnitType.Star) });
+            BoxView input_box = new BoxView();
+            grid.Add(input_box, 0, row);
+            Grid.SetColumnSpan(input_box, 6);
 
-        StartNewSession();
+            grid.Add(txt_Input, 0, row);
+            Grid.SetColumnSpan(txt_Input, 6);
+
+            BoxView enter_box = new BoxView();
+            grid.Add(enter_box, 6, row);
+            Grid.SetColumnSpan(enter_box, 2);
+
+            grid.Add(btn_Enter, 6, row);
+            Grid.SetColumnSpan(btn_Enter, 2);
+
+            //Empty space between Input/Enter and Encourage/Discourage
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView empty_box = new BoxView();
+            grid.Add(empty_box, 0, row);
+            Grid.SetColumnSpan(empty_box, 8);
+
+            //Encourage and Discourage
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.3, GridUnitType.Star) });
+            BoxView encourage_box = new BoxView();
+            grid.Add(encourage_box, 0, row);
+            Grid.SetColumnSpan(encourage_box, 3);
+
+            grid.Add(btn_Encourage, 0, row);
+            Grid.SetColumnSpan(btn_Encourage, 3);
+
+            BoxView discourage_box = new BoxView();
+            grid.Add(discourage_box, 5, row);
+            Grid.SetColumnSpan(discourage_box, 3);
+
+            grid.Add(btn_Discourage, 5, row);
+            Grid.SetColumnSpan(btn_Discourage, 3);
+
+            //Empty space underneath to push everything up
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView empty_box2 = new BoxView();
+            grid.Add(empty_box2, 0, row);
+            Grid.SetColumnSpan(empty_box2, 8);
+
+            Content = grid;
+
+            await StartNewSession();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+            Logger.AddLog("Talk.LoadGrid", ex.Message, ex.StackTrace);
+        }
     }
 
     protected override void OnAppearing()
@@ -146,43 +182,57 @@ public partial class Talk : ContentPage
         DisplayHistory();
     }
 
-    private static void SetOutput(string output)
+    public static void SetOutput(string output)
     {
-        if (MainThread.IsMainThread)
+        try
         {
-            txt_Output.Text = output;
-        }
-        else
-        {
-            MainThread.BeginInvokeOnMainThread(() =>
+            if (MainThread.IsMainThread)
             {
                 txt_Output.Text = output;
-            });
+            }
+            else
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    txt_Output.Text = output;
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.AddLog("Talk.SetOutput", ex.Message, ex.StackTrace);
         }
     }
 
     public static void Clear()
     {
-        txt_Output.Text = "";
-        txt_Input.Text = "";
-
-        Brain.LastResponse = "";
-        Brain.LastThought = "";
-        Brain.CleanInput = "";
-        Brain.Topics = null;
-        Brain.WordArray = null;
-        Brain.WordArray_Thinking = null;
-        Thinking.Thoughts.Clear();
-
-        if (Thinking.ThinkBox != null)
+        try
         {
-            Thinking.ThinkBox.Text = "";
-        }
+            txt_Output.Text = "";
+            txt_Input.Text = "";
 
-        DisplayHistory();
+            Brain.LastResponse = "";
+            Brain.LastThought = "";
+            Brain.CleanInput = "";
+            Brain.Topics = null;
+            Brain.WordArray = null;
+            Brain.WordArray_Thinking = null;
+            Thinking.Thoughts.Clear();
+
+            if (Thinking.ThinkBox != null)
+            {
+                Thinking.ThinkBox.Text = "";
+            }
+
+            DisplayHistory();
+        }
+        catch (Exception ex)
+        {
+            Logger.AddLog("Talk.Clear", ex.Message, ex.StackTrace);
+        }
     }
 
-    private static void DisplayTips()
+    public static void DisplayTips()
     {
         try
         {
@@ -231,33 +281,40 @@ public partial class Talk : ContentPage
         }
     }
 
-    public static void DisplayHistory()
+    public static async void DisplayHistory()
     {
-        StringBuilder sb = new StringBuilder();
-
-        List<string> lines = AppUtil.GetHistory();
-        if (lines.Count > 0)
+        try
         {
-            foreach (string line in lines)
+            StringBuilder sb = new StringBuilder();
+
+            List<string> lines = await AppUtil.GetHistory();
+            if (lines.Count > 0)
             {
-                sb.AppendLine(line);
-            }
+                foreach (string line in lines)
+                {
+                    sb.AppendLine(line);
+                }
 
-            SetOutput(sb.ToString());
+                SetOutput(sb.ToString());
+            }
+            else
+            {
+                DisplayTips();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            DisplayTips();
+            Logger.AddLog("Talk.DisplayHistory", ex.Message, ex.StackTrace);
         }
     }
 
-    private static void AddToHistory(string message)
+    public async void AddToHistory(string message)
     {
         try
         {
             if (!string.IsNullOrEmpty(message))
             {
-                List<string> history = AppUtil.GetHistory();
+                List<string> history = await AppUtil.GetHistory();
                 history.Add(message);
                 AppUtil.SaveHistory(history);
 
@@ -266,17 +323,18 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
+            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.AddToHistory", ex.Message, ex.StackTrace);
         }
     }
 
-    private static bool StartNewSession()
+    public async Task<bool> StartNewSession()
     {
         try
         {
             bool reset = false;
 
-            List<string> History = AppUtil.GetHistory();
+            List<string> History = await AppUtil.GetHistory();
             if (History.Count > 0)
             {
                 if (!History[History.Count - 1].Contains("[new session]"))
@@ -299,19 +357,20 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
+            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.StartNewSession", ex.Message, ex.StackTrace);
         }
 
         return false;
     }
 
-    private void Respond()
+    private async void Respond()
     {
         try
         {
             AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] You: " + Brain.Input);
 
-            string response = Brain.Respond(false);
+            string response = await Brain.Respond(false);
             if (!string.IsNullOrEmpty(response))
             {
                 AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] AI: " + response);
@@ -333,6 +392,7 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
+            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.Respond", ex.Message, ex.StackTrace);
         }
     }
@@ -354,6 +414,7 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
+            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.Input", ex.Message, ex.StackTrace);
         }
     }
@@ -367,7 +428,7 @@ public partial class Talk : ContentPage
                 bool encourage = false;
                 string message = "";
 
-                List<string> History = AppUtil.GetHistory();
+                List<string> History = await AppUtil.GetHistory();
                 if (History.Count > 0)
                 {
                     if (!History[History.Count - 1].Contains("[encouraged]"))
@@ -393,7 +454,7 @@ public partial class Talk : ContentPage
                 if (encourage &&
                     !string.IsNullOrEmpty(message))
                 {
-                    if (Brain.Encourage(message))
+                    if (await Brain.Encourage(message))
                     {
                         AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] [encouraged]");
                     }
@@ -406,6 +467,7 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
+            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.Encourage", ex.Message, ex.StackTrace);
         }
     }
@@ -419,7 +481,7 @@ public partial class Talk : ContentPage
                 bool discourage = false;
                 string message = "";
 
-                List<string> History = AppUtil.GetHistory();
+                List<string> History = await AppUtil.GetHistory();
                 if (History.Count > 0)
                 {
                     if (!History[History.Count - 1].Contains("[discouraged]"))
@@ -445,7 +507,7 @@ public partial class Talk : ContentPage
                 if (discourage &&
                     !string.IsNullOrEmpty(message))
                 {
-                    if (Brain.Discourage(message))
+                    if (await Brain.Discourage(message))
                     {
                         AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] [discouraged]");
                     }
@@ -458,13 +520,14 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
+            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.Discourage", ex.Message, ex.StackTrace);
         }
     }
 
-    private void OnNewSessionClicked(object sender, EventArgs e)
+    private async void OnNewSessionClicked(object sender, EventArgs e)
     {
-        StartNewSession();
+        await StartNewSession();
     }
 
     private void OnEnterClicked(object sender, EventArgs e)
@@ -487,7 +550,7 @@ public partial class Talk : ContentPage
         Discourage();
     }
 
-    private void AttentionTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    private async void AttentionTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
         try
         {
@@ -503,7 +566,7 @@ public partial class Talk : ContentPage
                 }
                 else
                 {
-                    message = Brain.Respond(true);
+                    message = await Brain.Respond(true);
                 }
 
                 if (!string.IsNullOrEmpty(message))
@@ -514,6 +577,7 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
+            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.AttentionTimer_Elapsed", ex.Message, ex.StackTrace);
         }
     }

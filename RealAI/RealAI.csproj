@@ -78,4 +78,6 @@
 	  </PackageReference>
 	</ItemGroup>
 
+	<ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionRealAIHideInfoBar="True" /></VisualStudio></ProjectExtensions>
+
 </Project>

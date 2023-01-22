@@ -1,4 +1,5 @@
-﻿using RealAI.Pages;
+﻿using Microsoft.Data.Sqlite;
+using RealAI.Pages;
 using RealAI.Util;
 
 namespace RealAI;
@@ -8,122 +9,139 @@ public partial class AppShell : Shell
 	public AppShell()
 	{
 		InitializeComponent();
-
-        AppUtil.GetBrainList();
         LoadConfig();
     }
 
-    private void LoadConfig()
+    private async void LoadConfig()
     {
-        string lastBrain = AppUtil.GetConfig("Last Loaded Brain");
-        if (!string.IsNullOrEmpty(lastBrain) &&
-            SQLUtil.BrainList.Contains(lastBrain))
+        try
         {
-            SQLUtil.BrainFile = lastBrain;
-        }
+            AppUtil.GetBrainList();
 
-        string thinkSpeed = AppUtil.GetConfig("ThinkSpeed");
-        if (string.IsNullOrEmpty(thinkSpeed))
-        {
-            Options.ThinkSpeed = 1000;
-            AppUtil.SetConfig("ThinkSpeed", "1000");
-        }
-        else
-        {
-            Options.ThinkSpeed = int.Parse(thinkSpeed);
-        }
+            string lastBrain = await AppUtil.GetConfig("Last Loaded Brain");
+            if (!string.IsNullOrEmpty(lastBrain) &&
+                SQLUtil.BrainList.Contains(lastBrain))
+            {
+                SQLUtil.BrainFile = lastBrain;
+            }
 
-        string canThink = AppUtil.GetConfig("CanThink");
-        if (string.IsNullOrEmpty(canThink))
-        {
-            AppUtil.SetConfig("CanThink", "True");
-        }
-        else
-        {
-            Options.CanThink = bool.Parse(canThink);
-        }
+            string thinkSpeed = await AppUtil.GetConfig("ThinkSpeed");
+            if (string.IsNullOrEmpty(thinkSpeed))
+            {
+                Options.ThinkSpeed = 1000;
+                AppUtil.SetConfig("ThinkSpeed", "1000");
+            }
+            else
+            {
+                Options.ThinkSpeed = int.Parse(thinkSpeed);
+            }
 
-        string canLearnFromThinking = AppUtil.GetConfig("CanLearnFromThinking");
-        if (string.IsNullOrEmpty(canLearnFromThinking))
-        {
-            AppUtil.SetConfig("CanLearnFromThinking", "False");
-        }
-        else
-        {
-            Options.CanLearnFromThinking = bool.Parse(canLearnFromThinking);
-        }
+            string canThink = await AppUtil.GetConfig("CanThink");
+            if (string.IsNullOrEmpty(canThink))
+            {
+                AppUtil.SetConfig("CanThink", "True");
+            }
+            else
+            {
+                Options.CanThink = bool.Parse(canThink);
+            }
 
-        string attentionSpan = AppUtil.GetConfig("AttentionSpan");
-        if (string.IsNullOrEmpty(attentionSpan))
-        {
-            Options.AttentionSpan = 7;
-            AppUtil.SetConfig("AttentionSpan", "7");
-        }
-        else
-        {
-            Options.AttentionSpan = int.Parse(attentionSpan);
-        }
+            string canLearnFromThinking = await AppUtil.GetConfig("CanLearnFromThinking");
+            if (string.IsNullOrEmpty(canLearnFromThinking))
+            {
+                AppUtil.SetConfig("CanLearnFromThinking", "False");
+            }
+            else
+            {
+                Options.CanLearnFromThinking = bool.Parse(canLearnFromThinking);
+            }
 
-        string initiate = AppUtil.GetConfig("Initiate");
-        if (string.IsNullOrEmpty(initiate))
-        {
-            AppUtil.SetConfig("Initiate", "False");
-        }
-        else
-        {
-            Options.Initiate = bool.Parse(initiate);
-        }
+            string attentionSpan = await AppUtil.GetConfig("AttentionSpan");
+            if (string.IsNullOrEmpty(attentionSpan))
+            {
+                Options.AttentionSpan = 7;
+                AppUtil.SetConfig("AttentionSpan", "7");
+            }
+            else
+            {
+                Options.AttentionSpan = int.Parse(attentionSpan);
+            }
 
-        string topicResponding = AppUtil.GetConfig("TopicResponding");
-        if (string.IsNullOrEmpty(topicResponding))
-        {
-            AppUtil.SetConfig("TopicResponding", "True");
-        }
-        else
-        {
-            Options.TopicResponding = bool.Parse(topicResponding);
-        }
+            string initiate = await AppUtil.GetConfig("Initiate");
+            if (string.IsNullOrEmpty(initiate))
+            {
+                AppUtil.SetConfig("Initiate", "False");
+            }
+            else
+            {
+                Options.Initiate = bool.Parse(initiate);
+            }
 
-        string wholeResponding = AppUtil.GetConfig("WholeResponding");
-        if (string.IsNullOrEmpty(wholeResponding))
-        {
-            AppUtil.SetConfig("WholeResponding", "True");
-        }
-        else
-        {
-            Options.WholeResponding = bool.Parse(wholeResponding);
-        }
+            string topicResponding = await AppUtil.GetConfig("TopicResponding");
+            if (string.IsNullOrEmpty(topicResponding))
+            {
+                AppUtil.SetConfig("TopicResponding", "True");
+            }
+            else
+            {
+                Options.TopicResponding = bool.Parse(topicResponding);
+            }
 
-        string proceduralResponding = AppUtil.GetConfig("ProceduralResponding");
-        if (string.IsNullOrEmpty(proceduralResponding))
-        {
-            AppUtil.SetConfig("ProceduralResponding", "True");
+            string wholeResponding = await AppUtil.GetConfig("WholeResponding");
+            if (string.IsNullOrEmpty(wholeResponding))
+            {
+                AppUtil.SetConfig("WholeResponding", "True");
+            }
+            else
+            {
+                Options.WholeResponding = bool.Parse(wholeResponding);
+            }
+
+            string proceduralResponding = await AppUtil.GetConfig("ProceduralResponding");
+            if (string.IsNullOrEmpty(proceduralResponding))
+            {
+                AppUtil.SetConfig("ProceduralResponding", "True");
+            }
+            else
+            {
+                Options.ProceduralResponding = bool.Parse(proceduralResponding);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Options.ProceduralResponding = bool.Parse(proceduralResponding);
+            await DisplayAlert("Error", ex.Message, "OK");
+            Logger.AddLog("AppShell.LoadConfig", ex.Message, ex.StackTrace);
         }
     }
 
     private async void WipeMemory(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Wipe Memory?", "Are you sure you want to wipe the brain's memory?", "Yes", "No");
-        if (answer)
+        try
         {
-            Talk.txt_Output.Text = "";
-            Talk.txt_Input.Text = "";
-
-            string historyFolder = AppUtil.GetHistoryPath(SQLUtil.BrainFile);
-            if (Directory.Exists(historyFolder))
+            bool answer = await DisplayAlert("Wipe Memory?", "Are you sure you want to wipe the brain's memory?", "Yes", "No");
+            if (answer)
             {
-                Directory.Delete(historyFolder, true);
+                Talk.txt_Output.Text = "";
+                Talk.txt_Input.Text = "";
+
+                string historyFolder = await AppUtil.GetHistoryPath(SQLUtil.BrainFile);
+                if (Directory.Exists(historyFolder))
+                {
+                    Directory.Delete(historyFolder, true);
+                }
+
+                Talk.Clear();
+
+                List<SqliteCommand> wipe = await SQLUtil.Wipe();
+                await SQLUtil.BulkExecute(wipe);
+
+                await DisplayAlert("Wipe Memory?", "The memory has been wiped.", "OK");
             }
-
-            Talk.Clear();
-
-            SQLUtil.BulkExecute(SQLUtil.Wipe());
-
-            await DisplayAlert("Wipe Memory?", "The memory has been wiped.", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+            Logger.AddLog("AppShell.WipeMemory", ex.Message, ex.StackTrace);
         }
     }
 }

@@ -6,9 +6,10 @@
     the contents are regenerated.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.oblivionburn.realai2" android:installLocation="internalOnly" android:versionCode="42" android:versionName="2.0">
-  <uses-sdk android:minSdkVersion="33" android:targetSdkVersion="33" />
+  <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="33" />
   <uses-permission android:name="android.permission.INTERNET" />
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
   <permission android:name="com.oblivionburn.realai2.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="signature" />
   <uses-permission android:name="com.oblivionburn.realai2.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
   <application android:name="crc64fdbbc160b644f08f.MainApplication" android:allowBackup="true" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:debuggable="true" android:extractNativeLibs="true" android:icon="@mipmap/appicon" android:label="Real AI" android:supportsRtl="true">

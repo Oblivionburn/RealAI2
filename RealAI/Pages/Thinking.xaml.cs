@@ -80,14 +80,14 @@ public partial class Thinking : ContentPage
         }
     }
 
-    private void Think()
+    private async void Think()
     {
         try
         {
             if (!string.IsNullOrEmpty(SQLUtil.BrainFile) &&
                 Options.CanThink)
             {
-                string response = Brain.Think();
+                string response = await Brain.Think();
                 if (!string.IsNullOrEmpty(response))
                 {
                     Thoughts.Add("[" + DateTime.Now.ToString("HH:mm:ss") + "] AI: " + response);

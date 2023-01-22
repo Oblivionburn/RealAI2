@@ -1,8 +1,12 @@
-﻿namespace RealAI;
+﻿using RealAI.Util;
+
+namespace RealAI;
 
 public partial class App : Application
 {
-	public App()
+    public static Window Window { get; private set; }
+
+    public App()
 	{
 		InitializeComponent();
 

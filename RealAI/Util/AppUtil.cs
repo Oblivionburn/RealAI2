@@ -2,93 +2,184 @@
 {
     public static class AppUtil
     {
-        public static string GetPath(string file)
-        {
-            return Path.Combine(FileSystem.AppDataDirectory, file);
-        }
-
-        public static string GetHistoryPath(string brainFile)
-        {
-            return Path.Combine(FileSystem.AppDataDirectory, "History", brainFile);
-        }
-
-        public static string GetHistoryFile(string brainFile)
+        public static async Task<string> GetBasePath()
         {
             try
             {
-                if (!string.IsNullOrEmpty(GetHistoryPath(brainFile)))
+                //string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string path = @"/storage/emulated/0/Documents/RealAI2/";
+                if (!Directory.Exists(path))
                 {
-                    string date = DateTime.Today.Year.ToString() + "-" + DateTime.Today.Month.ToString() + "-" + DateTime.Today.Day.ToString();
-                    return Path.Combine(GetHistoryPath(brainFile), date + ".txt");
+                    Directory.CreateDirectory(path);
+                }
+
+                return path;
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", ex.Source + "\n" + ex.Message + "\n" + ex.StackTrace, "OK");
+                Logger.AddLog("AppUtil.GetBasePath", ex.Message, ex.StackTrace);
+            }
+
+            return null;
+        }
+
+        public static async Task<string> GetPath(string file)
+        {
+            try
+            {
+                string basePath = await GetBasePath();
+                if (!string.IsNullOrEmpty(basePath) &&
+                    !string.IsNullOrEmpty(file))
+                {
+                    return Path.Combine(basePath, file);
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Source + "\n" + ex.Message + "\n" + ex.StackTrace, "OK");
+                Logger.AddLog("AppUtil.GetPath", ex.Message, ex.StackTrace);
+            }
+
+            return null;
+        }
+
+        public static async Task<string> GetHistoryPath(string brainFile)
+        {
+            try
+            {
+                string basePath = await GetBasePath();
+                if (!string.IsNullOrEmpty(basePath))
+                {
+                    string history_dir = Path.Combine(basePath, "History");
+                    if (!Directory.Exists(history_dir))
+                    {
+                        Directory.CreateDirectory(history_dir);
+                    }
+
+                    if (!string.IsNullOrEmpty(brainFile))
+                    {
+                        string history_brain_dir = Path.Combine(history_dir, brainFile);
+                        if (!Directory.Exists(history_brain_dir))
+                        {
+                            Directory.CreateDirectory(history_brain_dir);
+                        }
+
+                        return history_brain_dir;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", ex.Source + "\n" + ex.Message + "\n" + ex.StackTrace, "OK");
+                Logger.AddLog("AppUtil.GetHistoryPath", ex.Message, ex.StackTrace);
+            }
+
+            return null;
+        }
+
+        public static async Task<string> GetHistoryFile(string brainFile)
+        {
+            try
+            {
+                string history_dir = await GetHistoryPath(brainFile);
+                if (!string.IsNullOrEmpty(history_dir))
+                {
+                    string date = DateTime.Today.Year.ToString() + "-" + DateTime.Today.Month.ToString() + "-" + DateTime.Today.Day.ToString();
+                    return Path.Combine(await GetHistoryPath(brainFile), date + ".txt");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("AppUtil.GetHistoryFile", ex.Message, ex.StackTrace);
             }
 
             return null;
         }
 
-        public static void GetBrainList()
-        {
-            string file = GetPath("BrainList.txt");
-
-            if (File.Exists(file))
-            {
-                SQLUtil.BrainList.AddRange(File.ReadAllLines(file));
-            }
-        }
-
-        public static void SaveBrainList()
-        {
-            string file = GetPath("BrainList.txt");
-            File.WriteAllLines(file, SQLUtil.BrainList);
-        }
-
-        public static void SetConfig(string name, string value)
+        public static async void GetBrainList()
         {
             try
             {
-                string file = GetPath("Config.ini");
-
-                List<string> lines = new List<string>();
-
-                if (File.Exists(file))
+                string file = await GetPath("BrainList.txt");
+                if (!string.IsNullOrEmpty(file) &&
+                    File.Exists(file))
                 {
-                    lines = File.ReadAllLines(file).ToList();
+                    SQLUtil.BrainList.AddRange(File.ReadAllLines(file));
                 }
-
-                bool found = false;
-                for (int i = 0; i < lines.Count; i++)
-                {
-                    if (lines[i].Contains(name))
-                    {
-                        found = true;
-                        lines[i] = name + "=" + value;
-                        break;
-                    }
-                }
-
-                if (!found)
-                {
-                    lines.Add(name + "=" + value);
-                }
-
-                File.WriteAllLines(file, lines);
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
+                Logger.AddLog("AppUtil.GetBrainList", ex.Message, ex.StackTrace);
+            }
+        }
+
+        public static async void SaveBrainList()
+        {
+            try
+            {
+                string file = await GetPath("BrainList.txt");
+                if (!string.IsNullOrEmpty(file))
+                {
+                    File.WriteAllLines(file, SQLUtil.BrainList);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
+                Logger.AddLog("AppUtil.SaveBrainList", ex.Message, ex.StackTrace);
+            }
+        }
+
+        public static async void SetConfig(string name, string value)
+        {
+            try
+            {
+                string file = await GetPath("Config.ini");
+                if (!string.IsNullOrEmpty(file))
+                {
+                    List<string> lines = new List<string>();
+
+                    if (File.Exists(file))
+                    {
+                        lines = File.ReadAllLines(file).ToList();
+                    }
+
+                    bool found = false;
+                    for (int i = 0; i < lines.Count; i++)
+                    {
+                        if (lines[i].Contains(name))
+                        {
+                            found = true;
+                            lines[i] = name + "=" + value;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        lines.Add(name + "=" + value);
+                    }
+
+                    File.WriteAllLines(file, lines);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("AppUtil.Set_Config", ex.Message, ex.StackTrace);
             }
         }
 
-        public static string GetConfig(string name)
+        public static async Task<string> GetConfig(string name)
         {
             try
             {
-                string file = GetPath("Config.ini");
-                if (File.Exists(file))
+                string file = await GetPath("Config.ini");
+                if (!string.IsNullOrEmpty(file) &&
+                    File.Exists(file))
                 {
                     string[] lines = File.ReadAllLines(file);
                     foreach (string line in lines)
@@ -113,50 +204,52 @@
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("AppUtil.Get_Config", ex.Message, ex.StackTrace);
             }
 
             return null;
         }
 
-        public static List<string> GetHistory()
+        public static async Task<List<string>> GetHistory()
         {
             List<string> history = new List<string>();
 
             try
             {
-                string file = GetHistoryFile(SQLUtil.BrainFile);
-                if (File.Exists(file))
+                string file = await GetHistoryFile(SQLUtil.BrainFile);
+                if (!string.IsNullOrEmpty(file) &&
+                    File.Exists(file))
                 {
                     history = File.ReadAllLines(file).ToList();
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("AppUtil.GetHistory", ex.Message, ex.StackTrace);
             }
 
             return history;
         }
 
-        public static void SaveHistory(List<string> history)
+        public static async void SaveHistory(List<string> history)
         {
             try
             {
-                string path = GetHistoryPath(SQLUtil.BrainFile);
+                string path = await GetHistoryPath(SQLUtil.BrainFile);
                 if (!string.IsNullOrEmpty(path))
                 {
-                    if (!Directory.Exists(path))
+                    string file = await GetHistoryFile(SQLUtil.BrainFile);
+                    if (!string.IsNullOrEmpty(file))
                     {
-                        Directory.CreateDirectory(path);
+                        File.WriteAllLines(file, history);
                     }
-
-                    string file = GetHistoryFile(SQLUtil.BrainFile);
-                    File.WriteAllLines(file, history);
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("AppUtil.SaveHistory", ex.Message, ex.StackTrace);
             }
         }

@@ -27,7 +27,7 @@ namespace RealAI
 
         public static readonly Regex NormalCharacters = new Regex(@"^[\p{L}\p{M}\p{N}\s]+$");
 
-        public static string GapSpecials(string old_string)
+        public static async Task<string> GapSpecials(string old_string)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -95,13 +95,14 @@ namespace RealAI
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.GapSpecials", ex.Message, ex.StackTrace);
             }
 
             return sb.ToString();
         }
 
-        public static string UnGapSpecials(string old_string)
+        public static async Task<string> UnGapSpecials(string old_string)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -126,42 +127,46 @@ namespace RealAI
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.UnGapSpecials", ex.Message, ex.StackTrace);
             }
 
             return sb.ToString();
         }
 
-        private static void PrepInput()
+        private static async void PrepInput()
         {
             try
             {
-                CleanInput = RulesCheck(Input);
-                WordArray = GapSpecials(CleanInput).Trim(' ').Split(' ');
+                CleanInput = await RulesCheck(Input);
+                string gapped = await GapSpecials(CleanInput);
+                WordArray = gapped.Trim(' ').Split(' ');
 
                 if (WordArray.Length > 0)
                 {
                     List<SqliteCommand> commands = new List<SqliteCommand>();
-                    commands.AddRange(AddInputs(CleanInput));
-                    commands.AddRange(AddWords(WordArray));
-                    commands.AddRange(AddPreWords(WordArray));
-                    commands.AddRange(AddProWords(WordArray));
-                    SQLUtil.BulkExecute(commands);
+                    commands.AddRange(await AddInputs(CleanInput));
+                    commands.AddRange(await AddWords(WordArray));
+                    commands.AddRange(await AddPreWords(WordArray));
+                    commands.AddRange(await AddProWords(WordArray));
+                    await SQLUtil.BulkExecute(commands);
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.PrepInput", ex.Message, ex.StackTrace);
             }
         }
 
-        public static bool Encourage(string message)
+        public static async Task<bool> Encourage(string message)
         {
             try
             {
                 if (!string.IsNullOrEmpty(message))
                 {
-                    string[] word_array = GapSpecials(message).Trim(' ').Split(' ');
+                    string gapped = await GapSpecials(message);
+                    string[] word_array = gapped.Trim(' ').Split(' ');
                     if (word_array.Length > 1)
                     {
                         List<string> words = new List<string>();
@@ -186,7 +191,7 @@ namespace RealAI
                             }
                         }
 
-                        commands.AddRange(SQLUtil.Increase_PreWordPriorities(words.ToArray(), pre_words.ToArray(), distances.ToArray()));
+                        commands.AddRange(await SQLUtil.Increase_PreWordPriorities(words.ToArray(), pre_words.ToArray(), distances.ToArray()));
 
                         words = new List<string>();
                         distances = new List<int>();
@@ -207,31 +212,33 @@ namespace RealAI
                             }
                         }
 
-                        commands.AddRange(SQLUtil.Increase_ProWordPriorities(words.ToArray(), pro_words.ToArray(), distances.ToArray()));
+                        commands.AddRange(await SQLUtil.Increase_ProWordPriorities(words.ToArray(), pro_words.ToArray(), distances.ToArray()));
 
-                        commands.AddRange(SQLUtil.Increase_OutputPriorities(message));
-                        commands.AddRange(SQLUtil.Increase_InputPriorities(message));
-                        commands.AddRange(SQLUtil.Increase_WordPriorities(word_array));
+                        commands.AddRange(await SQLUtil.Increase_OutputPriorities(message));
+                        commands.AddRange(await SQLUtil.Increase_InputPriorities(message));
+                        commands.AddRange(await SQLUtil.Increase_WordPriorities(word_array));
 
-                        return SQLUtil.BulkExecute(commands);
+                        return await SQLUtil.BulkExecute(commands);
                     }
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.Encourage", ex.Message, ex.StackTrace);
             }
 
             return false;
         }
 
-        public static bool Discourage(string message)
+        public static async Task<bool> Discourage(string message)
         {
             try
             {
                 if (!string.IsNullOrEmpty(message))
                 {
-                    string[] word_array = GapSpecials(message).Trim(' ').Split(' ');
+                    string gapped = await GapSpecials(message);
+                    string[] word_array = gapped.Trim(' ').Split(' ');
                     if (word_array.Length > 1)
                     {
                         List<string> words = new List<string>();
@@ -256,7 +263,7 @@ namespace RealAI
                             }
                         }
 
-                        commands.AddRange(SQLUtil.Decrease_PreWordPriorities(words.ToArray(), pre_words.ToArray(), distances.ToArray()));
+                        commands.AddRange(await SQLUtil.Decrease_PreWordPriorities(words.ToArray(), pre_words.ToArray(), distances.ToArray()));
 
                         words = new List<string>();
                         distances = new List<int>();
@@ -277,60 +284,63 @@ namespace RealAI
                             }
                         }
 
-                        commands.AddRange(SQLUtil.Decrease_ProWordPriorities(words.ToArray(), pro_words.ToArray(), distances.ToArray()));
+                        commands.AddRange(await SQLUtil.Decrease_ProWordPriorities(words.ToArray(), pro_words.ToArray(), distances.ToArray()));
 
-                        commands.AddRange(SQLUtil.Decrease_TopicPriorities(message, word_array));
-                        commands.AddRange(SQLUtil.Decrease_OutputPriorities(message));
-                        commands.AddRange(SQLUtil.Decrease_InputPriorities(message));
-                        commands.AddRange(SQLUtil.Decrease_WordPriorities(word_array));
+                        commands.AddRange(await SQLUtil.Decrease_TopicPriorities(message, word_array));
+                        commands.AddRange(await SQLUtil.Decrease_OutputPriorities(message));
+                        commands.AddRange(await SQLUtil.Decrease_InputPriorities(message));
+                        commands.AddRange(await SQLUtil.Decrease_WordPriorities(word_array));
 
-                        return SQLUtil.BulkExecute(commands);
+                        return await SQLUtil.BulkExecute(commands);
                     }
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.Discourage", ex.Message, ex.StackTrace);
             }
 
             return false;
         }
 
-        public static List<SqliteCommand> AddInputs(string input)
+        public static async Task<List<SqliteCommand>> AddInputs(string input)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
             try
             {
-                commands.AddRange(SQLUtil.Increase_InputPriorities(input));
-                commands.AddRange(SQLUtil.Add_NewInput(input));
+                commands.AddRange(await SQLUtil.Increase_InputPriorities(input));
+                commands.AddRange(await SQLUtil.Add_NewInput(input));
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.AddInputs", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> AddWords(string[] word_array)
+        public static async Task<List<SqliteCommand>> AddWords(string[] word_array)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
             try
             {
-                commands.AddRange(SQLUtil.Increase_WordPriorities(word_array));
-                commands.AddRange(SQLUtil.Add_Words(word_array));
+                commands.AddRange(await SQLUtil.Increase_WordPriorities(word_array));
+                commands.AddRange(await SQLUtil.Add_Words(word_array));
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.AddWords", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> AddPreWords(string[] word_array)
+        public static async Task<List<SqliteCommand>> AddPreWords(string[] word_array)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -356,18 +366,19 @@ namespace RealAI
                     }
                 }
 
-                commands.AddRange(SQLUtil.Increase_PreWordPriorities(words.ToArray(), pre_words.ToArray(), distances.ToArray()));
-                commands.AddRange(SQLUtil.Add_PreWords(words.ToArray(), pre_words.ToArray(), distances.ToArray()));
+                commands.AddRange(await SQLUtil.Increase_PreWordPriorities(words.ToArray(), pre_words.ToArray(), distances.ToArray()));
+                commands.AddRange(await SQLUtil.Add_PreWords(words.ToArray(), pre_words.ToArray(), distances.ToArray()));
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.AddPreWords", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        public static List<SqliteCommand> AddProWords(string[] word_array)
+        public static async Task<List<SqliteCommand>> AddProWords(string[] word_array)
         {
             List<SqliteCommand> commands = new List<SqliteCommand>();
 
@@ -393,50 +404,53 @@ namespace RealAI
                     }
                 }
 
-                commands.AddRange(SQLUtil.Increase_ProWordPriorities(words.ToArray(), pro_words.ToArray(), distances.ToArray()));
-                commands.AddRange(SQLUtil.Add_ProWords(words.ToArray(), pro_words.ToArray(), distances.ToArray()));
+                commands.AddRange(await SQLUtil.Increase_ProWordPriorities(words.ToArray(), pro_words.ToArray(), distances.ToArray()));
+                commands.AddRange(await SQLUtil.Add_ProWords(words.ToArray(), pro_words.ToArray(), distances.ToArray()));
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.AddProWords", ex.Message, ex.StackTrace);
             }
 
             return commands;
         }
 
-        private static void UpdateTopics(string input, string[] topics)
+        private static async void UpdateTopics(string input, string[] topics)
         {
             try
             {
                 List<SqliteCommand> commands = new List<SqliteCommand>();
-                commands.AddRange(SQLUtil.Increase_TopicPriorities(input, topics));
-                commands.AddRange(SQLUtil.AddTopics(input, topics));
-                commands.AddRange(SQLUtil.Decrease_Topics_Unmatched(input, topics));
-                commands.AddRange(SQLUtil.Clean_Topics(input));
-                SQLUtil.BulkExecute(commands);
+                commands.AddRange(await SQLUtil.Increase_TopicPriorities(input, topics));
+                commands.AddRange(await SQLUtil.AddTopics(input, topics));
+                commands.AddRange(await SQLUtil.Decrease_Topics_Unmatched(input, topics));
+                commands.AddRange(await SQLUtil.Clean_Topics(input));
+                await SQLUtil.BulkExecute(commands);
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.UpdateTopics", ex.Message, ex.StackTrace);
             }
         }
 
-        private static void UpdateOutputs(string input, string output)
+        private static async void UpdateOutputs(string input, string output)
         {
             try
             {
                 List<SqliteCommand> commands = new List<SqliteCommand>();
-                commands.AddRange(SQLUtil.Increase_OutputPriorities(output, input));
-                commands.AddRange(SQLUtil.Add_Outputs(output, input));
-                SQLUtil.BulkExecute(commands);
+                commands.AddRange(await SQLUtil.Increase_OutputPriorities(output, input));
+                commands.AddRange(await SQLUtil.Add_Outputs(output, input));
+                await SQLUtil.BulkExecute(commands);
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.UpdateOutputs", ex.Message, ex.StackTrace);
             }
         }
 
-        public static string Respond(bool initiating)
+        public static async Task<string> Respond(bool initiating)
         {
             Response = "";
 
@@ -456,7 +470,7 @@ namespace RealAI
                                 //Get topic-based response
                                 if (Topics.Length > 0)
                                 {
-                                    outputs.AddRange(SQLUtil.Get_OutputsFromTopics(Topics));
+                                    outputs.AddRange(await SQLUtil.Get_OutputsFromTopics(Topics));
                                 }
                             }
 
@@ -466,7 +480,8 @@ namespace RealAI
                                 //Get direct response
                                 if (!string.IsNullOrEmpty(CleanInput))
                                 {
-                                    outputs.AddRange(SQLUtil.Get_OutputsFromInput(CleanInput).ToList());
+                                    string[] outs = await SQLUtil.Get_OutputsFromInput(CleanInput);
+                                    outputs.AddRange(outs.ToList());
                                 }
                             }
 
@@ -474,8 +489,8 @@ namespace RealAI
                                 Options.ProceduralResponding)
                             {
                                 //Get generated response
-                                string min_word = SQLUtil.Get_MinWord(WordArray);
-                                outputs.Add(GenerateResponse(min_word, false));
+                                string min_word = await SQLUtil.Get_MinWord(WordArray);
+                                outputs.Add(await GenerateResponse(min_word, false));
                             }
                         }
                     }
@@ -484,8 +499,8 @@ namespace RealAI
                     if (outputs.Count == 0 &&
                         Options.ProceduralResponding)
                     {
-                        string word = SQLUtil.Get_RandomWord();
-                        outputs.Add(GenerateResponse(word, false));
+                        string word = await SQLUtil.Get_RandomWord();
+                        outputs.Add(await GenerateResponse(word, false));
                     }
                 }
                 else
@@ -501,7 +516,7 @@ namespace RealAI
                         }
 
                         //Get lowest priority words from input
-                        Topics = SQLUtil.Get_MinWords(WordArray);
+                        Topics = await SQLUtil.Get_MinWords(WordArray);
 
                         if (Topics.Length > 0)
                         {
@@ -514,21 +529,22 @@ namespace RealAI
                             Options.TopicResponding)
                         {
                             //Get highest priority output(s) from matching topics
-                            outputs.AddRange(SQLUtil.Get_OutputsFromTopics(Topics));
+                            outputs.AddRange(await SQLUtil.Get_OutputsFromTopics(Topics));
                         }
 
                         if (outputs.Count == 0 &&
                             Options.WholeResponding)
                         {
                             //Get direct response
-                            outputs.AddRange(SQLUtil.Get_OutputsFromInput(CleanInput).ToList());
+                            string[] outs = await SQLUtil.Get_OutputsFromInput(CleanInput);
+                            outputs.AddRange(outs.ToList());
                         }
 
                         string min_word = "";
                         if (outputs.Count == 0)
                         {
                             //Get lowest priority word
-                            min_word = SQLUtil.Get_MinWord(WordArray);
+                            min_word = await SQLUtil.Get_MinWord(WordArray);
                         }
 
                         if (outputs.Count == 0 &&
@@ -536,14 +552,14 @@ namespace RealAI
                             Options.ProceduralResponding)
                         {
                             //Generate response from lowest priority word
-                            outputs.Add(GenerateResponse(min_word, false));
+                            outputs.Add(await GenerateResponse(min_word, false));
                         }
 
                         string random_word = "";
                         if (outputs.Count == 0)
                         {
                             //Still got nothing? Pick a random word.
-                            random_word = SQLUtil.Get_RandomWord();
+                            random_word = await SQLUtil.Get_RandomWord();
                         }
 
                         if (outputs.Count == 0 &&
@@ -551,7 +567,7 @@ namespace RealAI
                             Options.ProceduralResponding)
                         {
                             //Generate response from random word
-                            outputs.Add(GenerateResponse(random_word, false));
+                            outputs.Add(await GenerateResponse(random_word, false));
                         }
                     }
                 }
@@ -567,7 +583,7 @@ namespace RealAI
                     if (!string.IsNullOrEmpty(Response))
                     {
                         //Clean up response
-                        Response = RulesCheck(Response);
+                        Response = await RulesCheck(Response);
 
                         if (!string.IsNullOrEmpty(Response))
                         {
@@ -582,13 +598,14 @@ namespace RealAI
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.Respond", ex.Message, ex.StackTrace);
             }
 
             return Response;
         }
 
-        public static string GenerateResponse(string topic, bool for_thinking)
+        public static async Task<string> GenerateResponse(string topic, bool for_thinking)
         {
             string response = "";
 
@@ -612,7 +629,7 @@ namespace RealAI
                         }
 
                         //Get pre-word
-                        string pre_word = SQLUtil.Get_PreWord(response_words, for_thinking);
+                        string pre_word = await SQLUtil.Get_PreWord(response_words, for_thinking);
                         if (!string.IsNullOrEmpty(pre_word))
                         {
                             //Add it
@@ -632,7 +649,7 @@ namespace RealAI
                         //Check for duplication
                         if (response_words.Count > 0)
                         {
-                            List<string> new_response_words = HandleDuplication(response_words);
+                            List<string> new_response_words = await HandleDuplication(response_words);
                             if (new_response_words.Count < response_words.Count)
                             {
                                 break;
@@ -656,7 +673,7 @@ namespace RealAI
                         }
 
                         //Get pro-word
-                        string pro_word = SQLUtil.Get_ProWord(response_words, for_thinking);
+                        string pro_word = await SQLUtil.Get_ProWord(response_words, for_thinking);
                         if (!string.IsNullOrEmpty(pro_word))
                         {
                             //Add it
@@ -676,7 +693,7 @@ namespace RealAI
                         //Check for duplication
                         if (response_words.Count > 0)
                         {
-                            List<string> new_response_words = HandleDuplication(response_words);
+                            List<string> new_response_words = await HandleDuplication(response_words);
                             if (new_response_words.Count < response_words.Count)
                             {
                                 break;
@@ -717,13 +734,14 @@ namespace RealAI
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.GenerateResponse", ex.Message, ex.StackTrace);
             }
 
             return response;
         }
 
-        public static List<string> HandleDuplication(List<string> words)
+        public static async Task<List<string>> HandleDuplication(List<string> words)
         {
             List<string> results = new List<string>(words);
 
@@ -773,13 +791,14 @@ namespace RealAI
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.HandleDuplication", ex.Message, ex.StackTrace);
             }
 
             return results;
         }
 
-        public static string RulesCheck(string old_string)
+        public static async Task<string> RulesCheck(string old_string)
         {
             string new_string = "";
 
@@ -797,7 +816,7 @@ namespace RealAI
                     }
 
                     //Remove spaces before special characters
-                    new_string = UnGapSpecials(new_string);
+                    new_string = await UnGapSpecials(new_string);
 
                     //Set ending punctuation if missing
                     char last_letter = new_string[new_string.Length - 1];
@@ -809,38 +828,41 @@ namespace RealAI
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.RulesCheck", ex.Message, ex.StackTrace);
             }
 
             return new_string;
         }
 
-        private static void PrepThought(string respond_to)
+        private static async void PrepThought(string respond_to)
         {
             try
             {
-                WordArray_Thinking = GapSpecials(respond_to).Trim(' ').Split(' ');
+                string gapped = await GapSpecials(respond_to);
+                WordArray_Thinking = gapped.Trim(' ').Split(' ');
                 if (WordArray_Thinking.Length > 0)
                 {
                     if (!string.IsNullOrEmpty(WordArray_Thinking[0]) &&
                         Options.CanLearnFromThinking)
                     {
                         List<SqliteCommand> commands = new List<SqliteCommand>();
-                        commands.AddRange(AddInputs(respond_to));
-                        commands.AddRange(AddWords(WordArray_Thinking));
-                        commands.AddRange(AddPreWords(WordArray_Thinking));
-                        commands.AddRange(AddProWords(WordArray_Thinking));
-                        SQLUtil.BulkExecute(commands);
+                        commands.AddRange(await AddInputs(respond_to));
+                        commands.AddRange(await AddWords(WordArray_Thinking));
+                        commands.AddRange(await AddPreWords(WordArray_Thinking));
+                        commands.AddRange(await AddProWords(WordArray_Thinking));
+                        await SQLUtil.BulkExecute(commands);
                     }
                 }
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.PrepThought", ex.Message, ex.StackTrace);
             }
         }
 
-        public static string Think()
+        public static async Task<string> Think()
         {
             Thought = "";
 
@@ -865,7 +887,7 @@ namespace RealAI
                     {
                         if (!string.IsNullOrEmpty(WordArray_Thinking[0]))
                         {
-                            string[] topics = SQLUtil.Get_MinWords(WordArray_Thinking);
+                            string[] topics = await SQLUtil.Get_MinWords(WordArray_Thinking);
 
                             if (topics.Length > 0)
                             {
@@ -879,33 +901,34 @@ namespace RealAI
                                 Options.TopicResponding)
                             {
                                 //Get topic-based response
-                                outputs.AddRange(SQLUtil.Get_OutputsFromTopics(topics));
+                                outputs.AddRange(await SQLUtil.Get_OutputsFromTopics(topics));
                             }
 
                             if (outputs.Count == 0 &&
                                 Options.WholeResponding)
                             {
                                 //Get direct response
-                                outputs.AddRange(SQLUtil.Get_OutputsFromInput(respond_to).ToList());
+                                string[] outs = await SQLUtil.Get_OutputsFromInput(respond_to);
+                                outputs.AddRange(outs.ToList());
                             }
 
                             if (outputs.Count == 0 &&
                                 Options.ProceduralResponding)
                             {
                                 //Get generated response
-                                string min_word = SQLUtil.Get_MinWord(WordArray_Thinking);
+                                string min_word = await SQLUtil.Get_MinWord(WordArray_Thinking);
 
                                 if (!string.IsNullOrEmpty(min_word))
                                 {
-                                    outputs.Add(GenerateResponse(min_word, true));
+                                    outputs.Add(await GenerateResponse(min_word, true));
                                 }
                             }
 
                             if (outputs.Count == 0 &&
                                 Options.ProceduralResponding)
                             {
-                                string word = SQLUtil.Get_RandomWord();
-                                outputs.Add(GenerateResponse(word, true));
+                                string word = await SQLUtil.Get_RandomWord();
+                                outputs.Add(await GenerateResponse(word, true));
                             }
                         }
                     }
@@ -922,7 +945,7 @@ namespace RealAI
                     if (!string.IsNullOrEmpty(Thought))
                     {
                         //Clean up response
-                        Thought = RulesCheck(Thought);
+                        Thought = await RulesCheck(Thought);
 
                         if (!string.IsNullOrEmpty(Thought))
                         {
@@ -940,6 +963,7 @@ namespace RealAI
             }
             catch (Exception ex)
             {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
                 Logger.AddLog("Brain.Think", ex.Message, ex.StackTrace);
             }
 

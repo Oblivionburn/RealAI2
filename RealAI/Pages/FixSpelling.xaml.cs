@@ -133,7 +133,7 @@ public partial class FixSpelling : ContentPage
         GetWords();
     }
 
-    private void GetWords()
+    private async void GetWords()
     {
         WordPicker.Title = null;
         WordPicker.SelectedIndex = -1;
@@ -146,7 +146,7 @@ public partial class FixSpelling : ContentPage
 
         if (!string.IsNullOrEmpty(SQLUtil.BrainFile))
         {
-            List<string> words = SQLUtil.Get_Words();
+            List<string> words = await SQLUtil.Get_Words();
             foreach (string word in words)
             {
                 WordList.Add(word);
@@ -194,45 +194,45 @@ public partial class FixSpelling : ContentPage
                 string sql;
                 SqliteCommand cmd;
 
-                while (SQLUtil.InputHasWord(old_word))
+                while (await SQLUtil.InputHasWord(old_word))
                 {
                     sql = @"UPDATE Inputs SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
                     cmd = new SqliteCommand(sql);
                     cmd.Parameters.Add(new_word_parm);
                     cmd.Parameters.Add(old_word_parm);
-                    SQLUtil.Execute(cmd);
+                    await SQLUtil.Execute(cmd);
                 }
 
-                while (SQLUtil.Output_InputHasWord(old_word))
+                while (await SQLUtil.Output_InputHasWord(old_word))
                 {
                     sql = @"UPDATE Outputs SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
                     cmd = new SqliteCommand(sql);
                     cmd.Parameters.Add(new_word_parm);
                     cmd.Parameters.Add(old_word_parm);
-                    SQLUtil.Execute(cmd);
+                    await SQLUtil.Execute(cmd);
                 }
 
-                while (SQLUtil.Output_OutputHasWord(old_word))
+                while (await SQLUtil.Output_OutputHasWord(old_word))
                 {
                     sql = @"UPDATE Outputs SET Output = REPLACE(Output, @old_word, @new_word) WHERE INSTR(Output, @old_word) > 0";
                     cmd = new SqliteCommand(sql);
                     cmd.Parameters.Add(new_word_parm);
                     cmd.Parameters.Add(old_word_parm);
-                    SQLUtil.Execute(cmd);
+                    await SQLUtil.Execute(cmd);
                 }
 
-                while (SQLUtil.Topics_InputHasWord(old_word))
+                while (await SQLUtil.Topics_InputHasWord(old_word))
                 {
                     sql = @"UPDATE Topics SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
                     cmd = new SqliteCommand(sql);
                     cmd.Parameters.Add(new_word_parm);
                     cmd.Parameters.Add(old_word_parm);
-                    SQLUtil.Execute(cmd);
+                    await SQLUtil.Execute(cmd);
                 }
 
                 if (exists)
                 {
-                    int old_priority = SQLUtil.Get_Word_Priority(old_word);
+                    int old_priority = await SQLUtil.Get_Word_Priority(old_word);
 
                     SqliteParameter old_priority_parm = new SqliteParameter("@priority", old_priority);
                     old_priority_parm.DbType = DbType.Int32;
@@ -285,9 +285,9 @@ public partial class FixSpelling : ContentPage
                 cmd.Parameters.Add(old_word_parm);
                 commands.Add(cmd);
 
-                SQLUtil.BulkExecute(commands);
+                await SQLUtil.BulkExecute(commands);
 
-                List<string> history = AppUtil.GetHistory();
+                List<string> history = await AppUtil.GetHistory();
                 for (int i = 0; i < history.Count; i++)
                 {
                     string line = history[i];

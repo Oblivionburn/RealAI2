@@ -6,7 +6,8 @@
     the contents are regenerated.
     -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.oblivionburn.realai2" android:installLocation="internalOnly" android:versionCode="42" android:versionName="2.0">
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
   <application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true" android:label="Real AI" android:name="crc64fdbbc160b644f08f.MainApplication" android:extractNativeLibs="true">
     <activity android:configChanges="density|orientation|smallestScreenSize|screenLayout|screenSize|uiMode" android:theme="@style/Maui.SplashTheme" android:name="crc64fdbbc160b644f08f.MainActivity" android:exported="true">
       <intent-filter>
