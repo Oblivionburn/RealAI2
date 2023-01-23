@@ -5,9 +5,10 @@ namespace RealAI.Pages;
 public partial class Brains : ContentPage
 {
     public Grid grid;
-    public Label LoadedBrain;
+    public Label lb_LoadedBrain;
+    public Button bt_NewBrain;
 
-	public Brains()
+    public Brains()
 	{
 		InitializeComponent();
         LoadGrid();
@@ -18,50 +19,57 @@ public partial class Brains : ContentPage
         try
         {
             grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition());
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60, GridUnitType.Absolute) });
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60, GridUnitType.Absolute) });
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60, GridUnitType.Absolute) });
 
-            grid.Add(new BoxView(), 0, 0);
-            LoadedBrain = new Label
-            {
-                FontSize = 24,
-                TextColor = Color.FromArgb("#FFFFFF"),
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            };
-            grid.Add(LoadedBrain, 0, 0);
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+
+            //Loaded Brain
+            int row = 0;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60, GridUnitType.Absolute) });
+            BoxView lb_loadedBrain_box = new BoxView();
+            grid.Add(lb_loadedBrain_box, 0, row);
+            Grid.SetColumnSpan(lb_loadedBrain_box, 8);
+
+            lb_LoadedBrain = new Label();
+            lb_LoadedBrain.FontSize = 24;
+            lb_LoadedBrain.TextColor = Color.FromArgb("#FFFFFF");
+            lb_LoadedBrain.HorizontalTextAlignment = TextAlignment.Center;
+            lb_LoadedBrain.VerticalTextAlignment = TextAlignment.Center;
+            lb_LoadedBrain.HorizontalOptions = LayoutOptions.Center;
+            lb_LoadedBrain.VerticalOptions = LayoutOptions.Center;
+            grid.Add(lb_LoadedBrain, 0, row);
+            Grid.SetColumnSpan(lb_LoadedBrain, 8);
+
             if (!string.IsNullOrEmpty(SQLUtil.BrainFile))
             {
-                LoadedBrain.Text = "Loaded Brain: " + SQLUtil.BrainFile;
+                lb_LoadedBrain.Text = "Loaded Brain: " + SQLUtil.BrainFile;
             }
             else
             {
-                LoadedBrain.Text = "No Brain Loaded";
+                lb_LoadedBrain.Text = "No Brain Loaded";
             }
 
-            grid.Add(new BoxView(), 0, 1);
-            Button newBrain = new Button
-            {
-                Text = "New Brain",
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center,
-                WidthRequest = 400
-            };
-            newBrain.Clicked += NewBrain_Clicked;
-            grid.Add(newBrain, 0, 1);
+            //New Brain
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60, GridUnitType.Absolute) });
+            BoxView bt_newBrain_box = new BoxView();
+            grid.Add(bt_newBrain_box, 1, row);
+            Grid.SetColumnSpan(bt_newBrain_box, 6);
 
-            grid.Add(new BoxView(), 0, 2);
-            Button deleteBrain = new Button
-            {
-                Text = "Delete Brain",
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center,
-                WidthRequest = 400
-            };
-            deleteBrain.Clicked += DeleteBrain_Clicked;
-            grid.Add(deleteBrain, 0, 2);
+            bt_NewBrain = new Button();
+            bt_NewBrain.Text = "New Brain";
+            bt_NewBrain.HorizontalOptions = LayoutOptions.Fill;
+            bt_NewBrain.VerticalOptions = LayoutOptions.Fill;
+            bt_NewBrain.Clicked -= NewBrain_Clicked;
+            bt_NewBrain.Clicked += NewBrain_Clicked;
+            grid.Add(bt_NewBrain, 1, row);
+            Grid.SetColumnSpan(bt_NewBrain, 6);
 
             if (SQLUtil.BrainList.Count > 0)
             {
@@ -72,17 +80,42 @@ public partial class Brains : ContentPage
                     string file = await AppUtil.GetPath(brain + ".brain");
                     if (File.Exists(file))
                     {
-                        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60, GridUnitType.Absolute) });
-                        grid.Add(new BoxView(), 0, 3 + i);
-                        Button loadBrain = new Button
-                        {
-                            Text = "Load Brain: " + brain,
-                            HorizontalOptions = LayoutOptions.Center,
-                            VerticalOptions = LayoutOptions.Center,
-                            WidthRequest = 400
-                        };
-                        loadBrain.Clicked += LoadBrain_Clicked;
-                        grid.Add(loadBrain, 0, 3 + i);
+                        //Empty space between Load/Delete Brain buttons
+                        row++;
+                        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute) });
+                        BoxView empty_box = new BoxView();
+                        grid.Add(empty_box, 0, row);
+                        Grid.SetColumnSpan(empty_box, 8);
+
+                        row++;
+
+                        //Load Brain
+                        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute) });
+                        BoxView bt_loadBrain_box = new BoxView();
+                        grid.Add(bt_loadBrain_box, 0, row);
+                        Grid.SetColumnSpan(bt_loadBrain_box, 4);
+
+                        Button bt_LoadBrain = new Button();
+                        bt_LoadBrain.Text = "Load Brain: " + brain;
+                        bt_LoadBrain.HorizontalOptions = LayoutOptions.Fill;
+                        bt_LoadBrain.VerticalOptions = LayoutOptions.Fill;
+                        bt_LoadBrain.Clicked += LoadBrain_Clicked;
+                        grid.Add(bt_LoadBrain, 0, row);
+                        Grid.SetColumnSpan(bt_LoadBrain, 4);
+
+                        //Delete Brain
+                        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute) });
+                        BoxView bt_deleteBrain_box = new BoxView();
+                        grid.Add(bt_deleteBrain_box, 4, row);
+                        Grid.SetColumnSpan(bt_deleteBrain_box, 4);
+
+                        Button bt_DeleteBrain = new Button();
+                        bt_DeleteBrain.Text = "Delete Brain: " + brain;
+                        bt_DeleteBrain.HorizontalOptions = LayoutOptions.Fill;
+                        bt_DeleteBrain.VerticalOptions = LayoutOptions.Fill;
+                        bt_DeleteBrain.Clicked += DeleteBrain_Clicked;
+                        grid.Add(bt_DeleteBrain, 4, row);
+                        Grid.SetColumnSpan(bt_DeleteBrain, 4);
                     }
                     else
                     {
@@ -92,7 +125,7 @@ public partial class Brains : ContentPage
                         if (SQLUtil.BrainFile == brain)
                         {
                             SQLUtil.BrainFile = null;
-                            LoadedBrain.Text = "No Brain Loaded";
+                            lb_LoadedBrain.Text = "No Brain Loaded";
                         }
 
                         i--;
@@ -105,7 +138,7 @@ public partial class Brains : ContentPage
                 if (!File.Exists(file))
                 {
                     SQLUtil.BrainFile = null;
-                    LoadedBrain.Text = "No Brain Loaded";
+                    lb_LoadedBrain.Text = "No Brain Loaded";
                 }
             }
 
@@ -122,32 +155,39 @@ public partial class Brains : ContentPage
     {
         try
         {
-            string name = await DisplayPromptAsync("New Brain", "What's the name of this new brain?");
-            if (!string.IsNullOrEmpty(name))
+            if (SQLUtil.BrainList.Count < 8)
             {
-                if (!SQLUtil.BrainList.Contains(name))
+                string name = await DisplayPromptAsync("New Brain", "What's the name of this new brain?");
+                if (!string.IsNullOrEmpty(name))
                 {
-                    string result = await SQLUtil.NewBrain(name);
-                    if (result == "SUCCESS")
+                    if (!SQLUtil.BrainList.Contains(name))
                     {
-                        LoadedBrain.Text = "Loaded Brain: " + SQLUtil.BrainFile;
+                        string result = await SQLUtil.NewBrain(name);
+                        if (result == "SUCCESS")
+                        {
+                            lb_LoadedBrain.Text = "Loaded Brain: " + SQLUtil.BrainFile;
 
-                        AppUtil.SetConfig("Last Loaded Brain", SQLUtil.BrainFile);
+                            AppUtil.SetConfig("Last Loaded Brain", SQLUtil.BrainFile);
 
-                        LoadGrid();
-                        Talk.Clear();
+                            LoadGrid();
+                            Talk.Clear();
 
-                        await DisplayAlert("New Brain", "'" + name + "' brain has been created and loaded.", "OK");
+                            await DisplayAlert("New Brain", "'" + name + "' brain has been created and loaded.", "OK");
+                        }
+                        else
+                        {
+                            await DisplayAlert("Error", result, "OK");
+                        }
                     }
                     else
                     {
-                        await DisplayAlert("Error", result, "OK");
+                        await DisplayAlert("New Brain", "'" + name + "' brain already exists.", "OK");
                     }
                 }
-                else
-                {
-                    await DisplayAlert("New Brain", "'" + name + "' brain already exists.", "OK");
-                }
+            }
+            else
+            {
+                await DisplayAlert("New Brain", "No more brains can be added.", "OK");
             }
         }
         catch (Exception ex)
@@ -161,23 +201,29 @@ public partial class Brains : ContentPage
     {
         try
         {
-            string name = await DisplayPromptAsync("Delete Brain", "Delete which brain?");
-            if (!string.IsNullOrEmpty(name))
+            Button bt_DeleteBrain = (Button)sender;
+            string[] text = bt_DeleteBrain.Text.Split(":");
+            string brain = text[1].Trim();
+                
+            if (!string.IsNullOrEmpty(brain))
             {
-                string result = await SQLUtil.DeleteBrain(name);
-
-                if (result == "SUCCESS")
+                bool answer = await DisplayAlert("Delete Brain", "Are you sure you want to delete the '" + brain + "' brain?", "Yes", "No");
+                if (answer)
                 {
-                    LoadGrid();
-                    await DisplayAlert("Delete Brain", "'" + name + "' brain has been deleted.", "OK");
-                }
-                else if (result == "NOT FOUND")
-                {
-                    await DisplayAlert("Delete Brain", "'" + name + "' brain was not found.", "OK");
-                }
-                else
-                {
-                    await DisplayAlert("Error", result, "OK");
+                    string result = await SQLUtil.DeleteBrain(brain);
+                    if (result == "SUCCESS")
+                    {
+                        LoadGrid();
+                        await DisplayAlert("Delete Brain", "'" + brain + "' brain has been deleted.", "OK");
+                    }
+                    else if (result == "NOT FOUND")
+                    {
+                        await DisplayAlert("Delete Brain", "'" + brain + "' brain was not found.", "OK");
+                    }
+                    else
+                    {
+                        await DisplayAlert("Error", result, "OK");
+                    }
                 }
             }
         }
@@ -197,7 +243,7 @@ public partial class Brains : ContentPage
             string brain = text[1].Trim();
 
             SQLUtil.BrainFile = brain;
-            LoadedBrain.Text = "Loaded Brain: " + brain;
+            lb_LoadedBrain.Text = "Loaded Brain: " + brain;
 
             Talk.Clear();
 

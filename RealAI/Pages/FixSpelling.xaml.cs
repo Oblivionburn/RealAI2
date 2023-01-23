@@ -21,16 +21,18 @@ public partial class FixSpelling : ContentPage
         lb_Picker = new Label();
         lb_Picker.FontSize = 20;
         lb_Picker.BackgroundColor = BackgroundColor;
-        lb_Picker.Text = "Pick Word:";
+        lb_Picker.Text = "Old Word:";
+        lb_Picker.HorizontalTextAlignment = TextAlignment.Center;
+        lb_Picker.VerticalTextAlignment = TextAlignment.Center;
         lb_Picker.HorizontalOptions = LayoutOptions.Fill;
         lb_Picker.VerticalOptions = LayoutOptions.Center;
 
         WordPicker = new Picker();
 		WordPicker.FontSize = 20;
+        WordPicker.HorizontalTextAlignment = TextAlignment.Start;
+        WordPicker.VerticalTextAlignment = TextAlignment.Center;
         WordPicker.HorizontalOptions = LayoutOptions.Fill;
         WordPicker.VerticalOptions = LayoutOptions.Center;
-        WordPicker.HorizontalTextAlignment = TextAlignment.Start;
-		WordPicker.VerticalTextAlignment = TextAlignment.Center;
         WordPicker.SelectedIndexChanged += WordPicker_SelectedIndexChanged;
 
         NewWord = new Entry();
@@ -57,29 +59,35 @@ public partial class FixSpelling : ContentPage
         grid.ColumnDefinitions.Add(new ColumnDefinition());
         grid.ColumnDefinitions.Add(new ColumnDefinition());
         grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
 
         //Empty space at top to push everything down
         int row = 0;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.75, GridUnitType.Star) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.8, GridUnitType.Star) });
         BoxView top_empty_box = new BoxView();
         top_empty_box.Color = BackgroundColor;
         grid.Add(top_empty_box, 0, row);
-        Grid.SetColumnSpan(top_empty_box, 4);
+        Grid.SetColumnSpan(top_empty_box, 8);
 
         //Word Picker
         row++;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.15, GridUnitType.Star) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
         BoxView lb_picker_box = new BoxView();
         lb_picker_box.Color = BackgroundColor;
         grid.Add(lb_picker_box, 0, row);
+        Grid.SetColumnSpan(lb_picker_box, 2);
         grid.Add(lb_Picker, 0, row);
+        Grid.SetColumnSpan(lb_Picker, 2);
 
         BoxView picker_box = new BoxView();
         picker_box.Color = BackgroundColor;
-        grid.Add(picker_box, 1, row);
-        Grid.SetColumnSpan(picker_box, 3);
-        grid.Add(WordPicker, 1, row);
-        Grid.SetColumnSpan(WordPicker, 3);
+        grid.Add(picker_box, 2, row);
+        Grid.SetColumnSpan(picker_box, 6);
+        grid.Add(WordPicker, 2, row);
+        Grid.SetColumnSpan(WordPicker, 6);
 
         //Empty space between Word Picker and New Word
         row++;
@@ -87,17 +95,17 @@ public partial class FixSpelling : ContentPage
         BoxView first_empty_box = new BoxView();
         first_empty_box.Color = BackgroundColor;
         grid.Add(first_empty_box, 0, row);
-        Grid.SetColumnSpan(first_empty_box, 4);
+        Grid.SetColumnSpan(first_empty_box, 8);
 
         //New Word
         row++;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.15, GridUnitType.Star) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
         BoxView newWord_box = new BoxView();
         newWord_box.Color = BackgroundColor;
-        grid.Add(newWord_box, 0, row);
-        Grid.SetColumnSpan(newWord_box, 4);
-        grid.Add(NewWord, 0, row);
-        Grid.SetColumnSpan(NewWord, 4);
+        grid.Add(newWord_box, 1, row);
+        Grid.SetColumnSpan(newWord_box, 6);
+        grid.Add(NewWord, 1, row);
+        Grid.SetColumnSpan(NewWord, 6);
 
         //Empty space between New Word and Update button
         row++;
@@ -105,16 +113,16 @@ public partial class FixSpelling : ContentPage
         BoxView second_empty_box = new BoxView();
         second_empty_box.Color = BackgroundColor;
         grid.Add(second_empty_box, 0, row);
-        Grid.SetColumnSpan(second_empty_box, 4);
+        Grid.SetColumnSpan(second_empty_box, 8);
 
         //Update
         row++;
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.125, GridUnitType.Star) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
         BoxView update_box = new BoxView();
         update_box.Color = BackgroundColor;
-        grid.Add(update_box, 0, row);
+        grid.Add(update_box, 2, row);
         Grid.SetColumnSpan(update_box, 4);
-        grid.Add(Update, 0, row);
+        grid.Add(Update, 2, row);
         Grid.SetColumnSpan(Update, 4);
 
         //Empty space underneath to push everything up
@@ -123,7 +131,7 @@ public partial class FixSpelling : ContentPage
         BoxView bottom_empty_box = new BoxView();
         bottom_empty_box.Color = BackgroundColor;
         grid.Add(bottom_empty_box, 0, row);
-        Grid.SetColumnSpan(bottom_empty_box, 4);
+        Grid.SetColumnSpan(bottom_empty_box, 8);
 
         Content = grid;
     }
@@ -194,42 +202,6 @@ public partial class FixSpelling : ContentPage
                 string sql;
                 SqliteCommand cmd;
 
-                while (await SQLUtil.InputHasWord(old_word))
-                {
-                    sql = @"UPDATE Inputs SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
-                    cmd = new SqliteCommand(sql);
-                    cmd.Parameters.Add(new_word_parm);
-                    cmd.Parameters.Add(old_word_parm);
-                    await SQLUtil.Execute(cmd);
-                }
-
-                while (await SQLUtil.Output_InputHasWord(old_word))
-                {
-                    sql = @"UPDATE Outputs SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
-                    cmd = new SqliteCommand(sql);
-                    cmd.Parameters.Add(new_word_parm);
-                    cmd.Parameters.Add(old_word_parm);
-                    await SQLUtil.Execute(cmd);
-                }
-
-                while (await SQLUtil.Output_OutputHasWord(old_word))
-                {
-                    sql = @"UPDATE Outputs SET Output = REPLACE(Output, @old_word, @new_word) WHERE INSTR(Output, @old_word) > 0";
-                    cmd = new SqliteCommand(sql);
-                    cmd.Parameters.Add(new_word_parm);
-                    cmd.Parameters.Add(old_word_parm);
-                    await SQLUtil.Execute(cmd);
-                }
-
-                while (await SQLUtil.Topics_InputHasWord(old_word))
-                {
-                    sql = @"UPDATE Topics SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
-                    cmd = new SqliteCommand(sql);
-                    cmd.Parameters.Add(new_word_parm);
-                    cmd.Parameters.Add(old_word_parm);
-                    await SQLUtil.Execute(cmd);
-                }
-
                 if (exists)
                 {
                     int old_priority = await SQLUtil.Get_Word_Priority(old_word);
@@ -248,6 +220,30 @@ public partial class FixSpelling : ContentPage
                     cmd.Parameters.Add(old_word_parm);
                     commands.Add(cmd);
                 }
+
+                sql = @"UPDATE Inputs SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
+                cmd = new SqliteCommand(sql);
+                cmd.Parameters.Add(new_word_parm);
+                cmd.Parameters.Add(old_word_parm);
+                commands.Add(cmd);
+
+                sql = @"UPDATE Outputs SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
+                cmd = new SqliteCommand(sql);
+                cmd.Parameters.Add(new_word_parm);
+                cmd.Parameters.Add(old_word_parm);
+                commands.Add(cmd);
+
+                sql = @"UPDATE Outputs SET Output = REPLACE(Output, @old_word, @new_word) WHERE INSTR(Output, @old_word) > 0";
+                cmd = new SqliteCommand(sql);
+                cmd.Parameters.Add(new_word_parm);
+                cmd.Parameters.Add(old_word_parm);
+                commands.Add(cmd);
+
+                sql = @"UPDATE Topics SET Input = REPLACE(Input, @old_word, @new_word) WHERE INSTR(Input, @old_word) > 0";
+                cmd = new SqliteCommand(sql);
+                cmd.Parameters.Add(new_word_parm);
+                cmd.Parameters.Add(old_word_parm);
+                commands.Add(cmd);
 
                 sql = @"UPDATE Words SET Word = @new_word WHERE Word = @old_word";
                 cmd = new SqliteCommand(sql);

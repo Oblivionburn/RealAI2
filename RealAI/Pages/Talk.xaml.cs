@@ -26,9 +26,9 @@ public partial class Talk : ContentPage
         {
             btn_NewSession = new Button();
             btn_NewSession.Text = "New Session";
-            btn_NewSession.Clicked += OnNewSessionClicked;
             btn_NewSession.HorizontalOptions = LayoutOptions.Fill;
             btn_NewSession.VerticalOptions = LayoutOptions.Fill;
+            btn_NewSession.Clicked += OnNewSessionClicked;
 
             txt_Output = new Editor();
             txt_Output.IsReadOnly = true;
@@ -39,29 +39,29 @@ public partial class Talk : ContentPage
             txt_Input = new Entry();
             txt_Input.FontSize = 20;
             txt_Input.Placeholder = "Type input here";
-            txt_Input.Completed += OnInputCompleted;
             txt_Input.HorizontalTextAlignment = TextAlignment.Start;
             txt_Input.VerticalTextAlignment = TextAlignment.Center;
             txt_Input.HorizontalOptions = LayoutOptions.Fill;
             txt_Input.VerticalOptions = LayoutOptions.Fill;
+            txt_Input.Completed += OnInputCompleted;
 
             btn_Enter = new Button();
             btn_Enter.Text = "Enter";
-            btn_Enter.Clicked += OnEnterClicked;
             btn_Enter.HorizontalOptions = LayoutOptions.Fill;
             btn_Enter.VerticalOptions = LayoutOptions.Fill;
+            btn_Enter.Clicked += OnEnterClicked;
 
             btn_Encourage = new Button();
             btn_Encourage.Text = "Encourage";
-            btn_Encourage.Clicked += OnEncourageClicked;
             btn_Encourage.HorizontalOptions = LayoutOptions.Fill;
             btn_Encourage.VerticalOptions = LayoutOptions.Fill;
+            btn_Encourage.Clicked += OnEncourageClicked;
 
             btn_Discourage = new Button();
             btn_Discourage.Text = "Discourage";
-            btn_Discourage.Clicked += OnDiscourageClicked;
             btn_Discourage.HorizontalOptions = LayoutOptions.Fill;
             btn_Discourage.VerticalOptions = LayoutOptions.Fill;
+            btn_Discourage.Clicked += OnDiscourageClicked;
 
             LoadGrid();
 
