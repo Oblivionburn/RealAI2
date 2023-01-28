@@ -20,7 +20,7 @@ public partial class Talk : ContentPage
         InitControls();
     }
 
-    private async void InitControls()
+    private void InitControls()
     {
         try
         {
@@ -72,12 +72,11 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.InitControls", ex.Message, ex.StackTrace);
         }
     }
 
-    private async void LoadGrid()
+    private void LoadGrid()
     {
         try
         {
@@ -168,11 +167,10 @@ public partial class Talk : ContentPage
 
             Content = grid;
 
-            await StartNewSession();
+            StartNewSession();
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.LoadGrid", ex.Message, ex.StackTrace);
         }
     }
@@ -188,13 +186,13 @@ public partial class Talk : ContentPage
         {
             if (MainThread.IsMainThread)
             {
-                txt_Output.Text = output;
+                txt_Output.Text = Encoding.UTF8.GetString(Encoding.Default.GetBytes(output));
             }
             else
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    txt_Output.Text = output;
+                    txt_Output.Text = Encoding.UTF8.GetString(Encoding.Default.GetBytes(output));
                 });
             }
         }
@@ -281,13 +279,13 @@ public partial class Talk : ContentPage
         }
     }
 
-    public static async void DisplayHistory()
+    public static void DisplayHistory()
     {
         try
         {
             StringBuilder sb = new StringBuilder();
 
-            List<string> lines = await AppUtil.GetHistory();
+            List<string> lines = AppUtil.GetHistory();
             if (lines.Count > 0)
             {
                 foreach (string line in lines)
@@ -308,13 +306,13 @@ public partial class Talk : ContentPage
         }
     }
 
-    public async void AddToHistory(string message)
+    public void AddToHistory(string message)
     {
         try
         {
             if (!string.IsNullOrEmpty(message))
             {
-                List<string> history = await AppUtil.GetHistory();
+                List<string> history = AppUtil.GetHistory();
                 history.Add(message);
                 AppUtil.SaveHistory(history);
 
@@ -323,18 +321,17 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.AddToHistory", ex.Message, ex.StackTrace);
         }
     }
 
-    public async Task<bool> StartNewSession()
+    public bool StartNewSession()
     {
         try
         {
             bool reset = false;
 
-            List<string> History = await AppUtil.GetHistory();
+            List<string> History = AppUtil.GetHistory();
             if (History.Count > 0)
             {
                 if (!History[History.Count - 1].Contains("[new session]"))
@@ -357,20 +354,19 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.StartNewSession", ex.Message, ex.StackTrace);
         }
 
         return false;
     }
 
-    private async void Respond()
+    private void Respond()
     {
         try
         {
             AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] You: " + Brain.Input);
 
-            string response = await Brain.Respond(false);
+            string response = Brain.Respond(false);
             if (!string.IsNullOrEmpty(response))
             {
                 AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] AI: " + response);
@@ -392,7 +388,6 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.Respond", ex.Message, ex.StackTrace);
         }
     }
@@ -414,7 +409,6 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.Input", ex.Message, ex.StackTrace);
         }
     }
@@ -428,7 +422,7 @@ public partial class Talk : ContentPage
                 bool encourage = false;
                 string message = "";
 
-                List<string> History = await AppUtil.GetHistory();
+                List<string> History = AppUtil.GetHistory();
                 if (History.Count > 0)
                 {
                     if (!History[History.Count - 1].Contains("[encouraged]"))
@@ -454,7 +448,7 @@ public partial class Talk : ContentPage
                 if (encourage &&
                     !string.IsNullOrEmpty(message))
                 {
-                    if (await Brain.Encourage(message))
+                    if (Brain.Encourage(message))
                     {
                         AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] [encouraged]");
                     }
@@ -467,7 +461,6 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.Encourage", ex.Message, ex.StackTrace);
         }
     }
@@ -481,7 +474,7 @@ public partial class Talk : ContentPage
                 bool discourage = false;
                 string message = "";
 
-                List<string> History = await AppUtil.GetHistory();
+                List<string> History = AppUtil.GetHistory();
                 if (History.Count > 0)
                 {
                     if (!History[History.Count - 1].Contains("[discouraged]"))
@@ -507,7 +500,7 @@ public partial class Talk : ContentPage
                 if (discourage &&
                     !string.IsNullOrEmpty(message))
                 {
-                    if (await Brain.Discourage(message))
+                    if (Brain.Discourage(message))
                     {
                         AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] [discouraged]");
                     }
@@ -520,14 +513,13 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.Discourage", ex.Message, ex.StackTrace);
         }
     }
 
-    private async void OnNewSessionClicked(object sender, EventArgs e)
+    private void OnNewSessionClicked(object sender, EventArgs e)
     {
-        await StartNewSession();
+        StartNewSession();
     }
 
     private void OnEnterClicked(object sender, EventArgs e)
@@ -550,7 +542,7 @@ public partial class Talk : ContentPage
         Discourage();
     }
 
-    private async void AttentionTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    private void AttentionTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
         try
         {
@@ -566,7 +558,7 @@ public partial class Talk : ContentPage
                 }
                 else
                 {
-                    message = await Brain.Respond(true);
+                    message = Brain.Respond(true);
                 }
 
                 if (!string.IsNullOrEmpty(message))
@@ -577,7 +569,6 @@ public partial class Talk : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Talk.AttentionTimer_Elapsed", ex.Message, ex.StackTrace);
         }
     }

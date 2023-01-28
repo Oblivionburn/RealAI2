@@ -28,6 +28,13 @@ public partial class Thinking : ContentPage
         ThinkTimer.Start();
     }
 
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        ThinkTimer.Start();
+    }
+
     private void ThinkTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
         Think();
@@ -80,14 +87,14 @@ public partial class Thinking : ContentPage
         }
     }
 
-    private async void Think()
+    private void Think()
     {
         try
         {
             if (!string.IsNullOrEmpty(SQLUtil.BrainFile) &&
                 Options.CanThink)
             {
-                string response = await Brain.Think();
+                string response = Brain.Think();
                 if (!string.IsNullOrEmpty(response))
                 {
                     Thoughts.Add("[" + DateTime.Now.ToString("HH:mm:ss") + "] AI: " + response);

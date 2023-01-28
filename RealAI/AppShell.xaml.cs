@@ -12,20 +12,20 @@ public partial class AppShell : Shell
         LoadConfig();
     }
 
-    private async void LoadConfig()
+    private void LoadConfig()
     {
         try
         {
             AppUtil.GetBrainList();
 
-            string lastBrain = await AppUtil.GetConfig("Last Loaded Brain");
+            string lastBrain = AppUtil.GetConfig("Last Loaded Brain");
             if (!string.IsNullOrEmpty(lastBrain) &&
                 SQLUtil.BrainList.Contains(lastBrain))
             {
                 SQLUtil.BrainFile = lastBrain;
             }
 
-            string thinkSpeed = await AppUtil.GetConfig("ThinkSpeed");
+            string thinkSpeed = AppUtil.GetConfig("ThinkSpeed");
             if (string.IsNullOrEmpty(thinkSpeed))
             {
                 Options.ThinkSpeed = 1000;
@@ -36,7 +36,7 @@ public partial class AppShell : Shell
                 Options.ThinkSpeed = int.Parse(thinkSpeed);
             }
 
-            string canThink = await AppUtil.GetConfig("CanThink");
+            string canThink = AppUtil.GetConfig("CanThink");
             if (string.IsNullOrEmpty(canThink))
             {
                 AppUtil.SetConfig("CanThink", "True");
@@ -46,7 +46,7 @@ public partial class AppShell : Shell
                 Options.CanThink = bool.Parse(canThink);
             }
 
-            string canLearnFromThinking = await AppUtil.GetConfig("CanLearnFromThinking");
+            string canLearnFromThinking = AppUtil.GetConfig("CanLearnFromThinking");
             if (string.IsNullOrEmpty(canLearnFromThinking))
             {
                 AppUtil.SetConfig("CanLearnFromThinking", "False");
@@ -56,7 +56,7 @@ public partial class AppShell : Shell
                 Options.CanLearnFromThinking = bool.Parse(canLearnFromThinking);
             }
 
-            string attentionSpan = await AppUtil.GetConfig("AttentionSpan");
+            string attentionSpan = AppUtil.GetConfig("AttentionSpan");
             if (string.IsNullOrEmpty(attentionSpan))
             {
                 Options.AttentionSpan = 7;
@@ -67,7 +67,7 @@ public partial class AppShell : Shell
                 Options.AttentionSpan = int.Parse(attentionSpan);
             }
 
-            string initiate = await AppUtil.GetConfig("Initiate");
+            string initiate = AppUtil.GetConfig("Initiate");
             if (string.IsNullOrEmpty(initiate))
             {
                 AppUtil.SetConfig("Initiate", "False");
@@ -77,7 +77,7 @@ public partial class AppShell : Shell
                 Options.Initiate = bool.Parse(initiate);
             }
 
-            string topicResponding = await AppUtil.GetConfig("TopicResponding");
+            string topicResponding = AppUtil.GetConfig("TopicResponding");
             if (string.IsNullOrEmpty(topicResponding))
             {
                 AppUtil.SetConfig("TopicResponding", "True");
@@ -87,7 +87,7 @@ public partial class AppShell : Shell
                 Options.TopicResponding = bool.Parse(topicResponding);
             }
 
-            string wholeResponding = await AppUtil.GetConfig("WholeResponding");
+            string wholeResponding = AppUtil.GetConfig("WholeResponding");
             if (string.IsNullOrEmpty(wholeResponding))
             {
                 AppUtil.SetConfig("WholeResponding", "True");
@@ -97,7 +97,7 @@ public partial class AppShell : Shell
                 Options.WholeResponding = bool.Parse(wholeResponding);
             }
 
-            string proceduralResponding = await AppUtil.GetConfig("ProceduralResponding");
+            string proceduralResponding = AppUtil.GetConfig("ProceduralResponding");
             if (string.IsNullOrEmpty(proceduralResponding))
             {
                 AppUtil.SetConfig("ProceduralResponding", "True");
@@ -109,7 +109,6 @@ public partial class AppShell : Shell
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("AppShell.LoadConfig", ex.Message, ex.StackTrace);
         }
     }
@@ -124,23 +123,26 @@ public partial class AppShell : Shell
                 Talk.txt_Output.Text = "";
                 Talk.txt_Input.Text = "";
 
-                string historyFolder = await AppUtil.GetHistoryPath(SQLUtil.BrainFile);
+                string historyFolder = AppUtil.GetHistoryPath(SQLUtil.BrainFile);
                 if (Directory.Exists(historyFolder))
                 {
                     Directory.Delete(historyFolder, true);
                 }
 
+                Thinking.ThinkTimer.Stop();
+
                 Talk.Clear();
 
-                List<SqliteCommand> wipe = await SQLUtil.Wipe();
-                await SQLUtil.BulkExecute(wipe);
+                List<SqliteCommand> wipe = SQLUtil.Wipe();
+                SQLUtil.BulkExecute(wipe);
+
+                Thinking.ThinkTimer.Start();
 
                 await DisplayAlert("Wipe Memory?", "The memory has been wiped.", "OK");
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("AppShell.WipeMemory", ex.Message, ex.StackTrace);
         }
     }

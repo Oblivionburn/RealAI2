@@ -31,7 +31,7 @@ target triple = "i686-unknown-linux-android"
 @__CompressedAssemblyDescriptor_data_14 = internal global [205760 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_15 = internal global [596416 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_16 = internal global [1497088 x i8] zeroinitializer, align 1
-@__CompressedAssemblyDescriptor_data_17 = internal global [573952 x i8] zeroinitializer, align 1
+@__CompressedAssemblyDescriptor_data_17 = internal global [526848 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_18 = internal global [6144 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_19 = internal global [50688 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_20 = internal global [5632 x i8] zeroinitializer, align 1
@@ -108,7 +108,7 @@ target triple = "i686-unknown-linux-android"
 @__CompressedAssemblyDescriptor_data_91 = internal global [21504 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_92 = internal global [12288 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_93 = internal global [351232 x i8] zeroinitializer, align 1
-@__CompressedAssemblyDescriptor_data_94 = internal global [1488384 x i8] zeroinitializer, align 1
+@__CompressedAssemblyDescriptor_data_94 = internal global [1488896 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_95 = internal global [66048 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_96 = internal global [61440 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_97 = internal global [12288 x i8] zeroinitializer, align 1
@@ -117,7 +117,7 @@ target triple = "i686-unknown-linux-android"
 @__CompressedAssemblyDescriptor_data_100 = internal global [21504 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_101 = internal global [13312 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_102 = internal global [351232 x i8] zeroinitializer, align 1
-@__CompressedAssemblyDescriptor_data_103 = internal global [1517568 x i8] zeroinitializer, align 1
+@__CompressedAssemblyDescriptor_data_103 = internal global [1518080 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_104 = internal global [65536 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_105 = internal global [61952 x i8] zeroinitializer, align 1
 @__CompressedAssemblyDescriptor_data_106 = internal global [12288 x i8] zeroinitializer, align 1
@@ -231,9 +231,9 @@ target triple = "i686-unknown-linux-android"
 	}, 
 	; 17
 	%struct.CompressedAssemblyDescriptor {
-		i32 573952, ; uncompressed_file_size
+		i32 526848, ; uncompressed_file_size
 		i8 0, ; loaded
-		i8* getelementptr inbounds ([573952 x i8], [573952 x i8]* @__CompressedAssemblyDescriptor_data_17, i32 0, i32 0); data
+		i8* getelementptr inbounds ([526848 x i8], [526848 x i8]* @__CompressedAssemblyDescriptor_data_17, i32 0, i32 0); data
 	}, 
 	; 18
 	%struct.CompressedAssemblyDescriptor {
@@ -693,9 +693,9 @@ target triple = "i686-unknown-linux-android"
 	}, 
 	; 94
 	%struct.CompressedAssemblyDescriptor {
-		i32 1488384, ; uncompressed_file_size
+		i32 1488896, ; uncompressed_file_size
 		i8 0, ; loaded
-		i8* getelementptr inbounds ([1488384 x i8], [1488384 x i8]* @__CompressedAssemblyDescriptor_data_94, i32 0, i32 0); data
+		i8* getelementptr inbounds ([1488896 x i8], [1488896 x i8]* @__CompressedAssemblyDescriptor_data_94, i32 0, i32 0); data
 	}, 
 	; 95
 	%struct.CompressedAssemblyDescriptor {
@@ -747,9 +747,9 @@ target triple = "i686-unknown-linux-android"
 	}, 
 	; 103
 	%struct.CompressedAssemblyDescriptor {
-		i32 1517568, ; uncompressed_file_size
+		i32 1518080, ; uncompressed_file_size
 		i8 0, ; loaded
-		i8* getelementptr inbounds ([1517568 x i8], [1517568 x i8]* @__CompressedAssemblyDescriptor_data_103, i32 0, i32 0); data
+		i8* getelementptr inbounds ([1518080 x i8], [1518080 x i8]* @__CompressedAssemblyDescriptor_data_103, i32 0, i32 0); data
 	}, 
 	; 104
 	%struct.CompressedAssemblyDescriptor {

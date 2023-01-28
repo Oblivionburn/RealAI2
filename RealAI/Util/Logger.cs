@@ -10,17 +10,19 @@
 
         #region Methods
 
-        public static void AddLog(string source, string message, string stack_trace)
+        public static async void AddLog(string source, string message, string stack_trace)
         {
+            await Shell.Current.DisplayAlert("Error", message, "OK");
             Logs.Add(new Log(source, message, stack_trace));
+            WriteLog();
         }
 
         public static void WriteLog()
         {
             if (Logs.Count > 0)
             {
-                string filename = string.Format("{0}_{1:yyyy-MM-dd_hh-mm-ss}{2}", @"\log", DateTime.Now, ".txt");
-                string path = Environment.CurrentDirectory + filename;
+                string filename = string.Format("{0}_{1:yyyy-MM-dd}{2}", @"\log", DateTime.Now, ".txt");
+                string path = AppUtil.GetPath(filename);
 
                 string text = "";
 

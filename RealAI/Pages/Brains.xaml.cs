@@ -14,7 +14,7 @@ public partial class Brains : ContentPage
         LoadGrid();
     }
 
-    private async void LoadGrid()
+    private void LoadGrid()
     {
         try
         {
@@ -77,7 +77,7 @@ public partial class Brains : ContentPage
                 {
                     string brain = SQLUtil.BrainList[i];
 
-                    string file = await AppUtil.GetPath(brain + ".brain");
+                    string file = AppUtil.GetPath(brain + ".brain");
                     if (File.Exists(file))
                     {
                         //Empty space between Load/Delete Brain buttons
@@ -134,7 +134,7 @@ public partial class Brains : ContentPage
             }
             else
             {
-                string file = await AppUtil.GetPath(SQLUtil.BrainFile + ".brain");
+                string file = AppUtil.GetPath(SQLUtil.BrainFile + ".brain");
                 if (!File.Exists(file))
                 {
                     SQLUtil.BrainFile = null;
@@ -146,7 +146,6 @@ public partial class Brains : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Brains.LoadGrid", ex.Message, ex.StackTrace);
         }
     }
@@ -162,7 +161,7 @@ public partial class Brains : ContentPage
                 {
                     if (!SQLUtil.BrainList.Contains(name))
                     {
-                        string result = await SQLUtil.NewBrain(name);
+                        string result = SQLUtil.NewBrain(name);
                         if (result == "SUCCESS")
                         {
                             lb_LoadedBrain.Text = "Loaded Brain: " + SQLUtil.BrainFile;
@@ -192,7 +191,6 @@ public partial class Brains : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Brains.NewBrain_Clicked", ex.Message, ex.StackTrace);
         }
     }
@@ -210,7 +208,7 @@ public partial class Brains : ContentPage
                 bool answer = await DisplayAlert("Delete Brain", "Are you sure you want to delete the '" + brain + "' brain?", "Yes", "No");
                 if (answer)
                 {
-                    string result = await SQLUtil.DeleteBrain(brain);
+                    string result = SQLUtil.DeleteBrain(brain);
                     if (result == "SUCCESS")
                     {
                         LoadGrid();
@@ -229,7 +227,6 @@ public partial class Brains : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Brains.DeleteBrain_Clicked", ex.Message, ex.StackTrace);
         }
     }
@@ -243,6 +240,8 @@ public partial class Brains : ContentPage
             string brain = text[1].Trim();
 
             SQLUtil.BrainFile = brain;
+            AppUtil.SetConfig("Last Loaded Brain", SQLUtil.BrainFile);
+
             lb_LoadedBrain.Text = "Loaded Brain: " + brain;
 
             Talk.Clear();
@@ -251,7 +250,6 @@ public partial class Brains : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Brains.LoadBrain_Clicked", ex.Message, ex.StackTrace);
         }
     }
