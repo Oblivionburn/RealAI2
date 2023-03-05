@@ -13,7 +13,7 @@ namespace RealAI.Util
         {
             try
             {
-                string path = AppUtil.GetPath(fileName + ".brain");
+                string path = AppUtil.GetBrainFile(fileName + ".brain");
                 return new SqliteConnection("Data Source=" + path);
             }
             catch (Exception ex)
@@ -125,7 +125,7 @@ namespace RealAI.Util
                 BulkExecute(commands);
 
                 BrainList.Add(fileName);
-                string file = AppUtil.GetPath("BrainList.txt");
+                string file = AppUtil.GetInternalPath("BrainList.txt");
                 File.WriteAllLines(file, BrainList);
 
                 return "SUCCESS";
@@ -141,7 +141,7 @@ namespace RealAI.Util
         {
             try
             {
-                string file = AppUtil.GetPath(fileName + ".brain");
+                string file = AppUtil.GetBrainFile(fileName + ".brain");
                 if (File.Exists(file))
                 {
                     File.Delete(file);

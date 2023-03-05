@@ -129,14 +129,20 @@ public partial class AppShell : Shell
                     Directory.Delete(historyFolder, true);
                 }
 
-                Thinking.ThinkTimer.Stop();
-
+                if (Thinking.ThinkTimer != null)
+                {
+                    Thinking.ThinkTimer.Stop();
+                }
+                
                 Talk.Clear();
 
                 List<SqliteCommand> wipe = SQLUtil.Wipe();
                 SQLUtil.BulkExecute(wipe);
 
-                Thinking.ThinkTimer.Start();
+                if (Thinking.ThinkTimer != null)
+                {
+                    Thinking.ThinkTimer.Start();
+                }
 
                 await DisplayAlert("Wipe Memory?", "The memory has been wiped.", "OK");
             }

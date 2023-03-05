@@ -1,3 +1,4 @@
+using Android.Webkit;
 using RealAI.Util;
 
 namespace RealAI.Pages;
@@ -7,6 +8,7 @@ public partial class Brains : ContentPage
     public Grid grid;
     public Label lb_LoadedBrain;
     public Button bt_NewBrain;
+    public Button bt_ImportBrain;
 
     public Brains()
 	{
@@ -59,8 +61,8 @@ public partial class Brains : ContentPage
             row++;
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60, GridUnitType.Absolute) });
             BoxView bt_newBrain_box = new BoxView();
-            grid.Add(bt_newBrain_box, 1, row);
-            Grid.SetColumnSpan(bt_newBrain_box, 6);
+            grid.Add(bt_newBrain_box, 0, row);
+            Grid.SetColumnSpan(bt_newBrain_box, 4);
 
             bt_NewBrain = new Button();
             bt_NewBrain.Text = "New Brain";
@@ -68,19 +70,34 @@ public partial class Brains : ContentPage
             bt_NewBrain.VerticalOptions = LayoutOptions.Fill;
             bt_NewBrain.Clicked -= NewBrain_Clicked;
             bt_NewBrain.Clicked += NewBrain_Clicked;
-            grid.Add(bt_NewBrain, 1, row);
-            Grid.SetColumnSpan(bt_NewBrain, 6);
+            grid.Add(bt_NewBrain, 0, row);
+            Grid.SetColumnSpan(bt_NewBrain, 4);
 
+            //Import Brain
+            BoxView bt_importBrain_box = new BoxView();
+            grid.Add(bt_importBrain_box, 4, row);
+            Grid.SetColumnSpan(bt_importBrain_box, 4);
+
+            bt_ImportBrain = new Button();
+            bt_ImportBrain.Text = "Import Brain";
+            bt_ImportBrain.HorizontalOptions = LayoutOptions.Fill;
+            bt_ImportBrain.VerticalOptions = LayoutOptions.Fill;
+            bt_ImportBrain.Clicked -= ImportBrain_Clicked;
+            bt_ImportBrain.Clicked += ImportBrain_Clicked;
+            grid.Add(bt_ImportBrain, 4, row);
+            Grid.SetColumnSpan(bt_ImportBrain, 4);
+
+            //List existing brains
             if (SQLUtil.BrainList.Count > 0)
             {
                 for (int i = 0; i < SQLUtil.BrainList.Count; i++)
                 {
                     string brain = SQLUtil.BrainList[i];
 
-                    string file = AppUtil.GetPath(brain + ".brain");
+                    string file = AppUtil.GetBrainFile(brain + ".brain");
                     if (File.Exists(file))
                     {
-                        //Empty space between Load/Delete Brain buttons
+                        //Empty space between Load/Export/Delete Brain buttons
                         row++;
                         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute) });
                         BoxView empty_box = new BoxView();
@@ -88,34 +105,61 @@ public partial class Brains : ContentPage
                         Grid.SetColumnSpan(empty_box, 8);
 
                         row++;
+                        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute) });
 
                         //Load Brain
-                        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute) });
+                        BoxView lb_brain_box = new BoxView();
+                        grid.Add(lb_brain_box, 0, row);
+                        Grid.SetColumnSpan(lb_brain_box, 2);
+
+                        Label lb_Brain = new Label();
+                        lb_Brain.Text = brain + ": ";
+                        lb_Brain.FontSize = 20;
+                        lb_Brain.HorizontalTextAlignment = TextAlignment.End;
+                        lb_Brain.VerticalTextAlignment = TextAlignment.Center;
+                        lb_Brain.HorizontalOptions = LayoutOptions.Fill;
+                        lb_Brain.VerticalOptions = LayoutOptions.Fill;
+                        grid.Add(lb_Brain, 0, row);
+                        Grid.SetColumnSpan(lb_Brain, 2);
+
+                        //Load Brain
                         BoxView bt_loadBrain_box = new BoxView();
-                        grid.Add(bt_loadBrain_box, 0, row);
-                        Grid.SetColumnSpan(bt_loadBrain_box, 4);
+                        grid.Add(bt_loadBrain_box, 2, row);
+                        Grid.SetColumnSpan(bt_loadBrain_box, 2);
 
                         Button bt_LoadBrain = new Button();
-                        bt_LoadBrain.Text = "Load Brain: " + brain;
+                        bt_LoadBrain.Text = "Load " + brain;
                         bt_LoadBrain.HorizontalOptions = LayoutOptions.Fill;
                         bt_LoadBrain.VerticalOptions = LayoutOptions.Fill;
                         bt_LoadBrain.Clicked += LoadBrain_Clicked;
-                        grid.Add(bt_LoadBrain, 0, row);
-                        Grid.SetColumnSpan(bt_LoadBrain, 4);
+                        grid.Add(bt_LoadBrain, 2, row);
+                        Grid.SetColumnSpan(bt_LoadBrain, 2);
+
+                        //Export Brain
+                        BoxView bt_exportBrain_box = new BoxView();
+                        grid.Add(bt_exportBrain_box, 4, row);
+                        Grid.SetColumnSpan(bt_exportBrain_box, 2);
+
+                        Button bt_ExportBrain = new Button();
+                        bt_ExportBrain.Text = "Export " + brain;
+                        bt_ExportBrain.HorizontalOptions = LayoutOptions.Fill;
+                        bt_ExportBrain.VerticalOptions = LayoutOptions.Fill;
+                        bt_ExportBrain.Clicked += ExportBrain_Clicked;
+                        grid.Add(bt_ExportBrain, 4, row);
+                        Grid.SetColumnSpan(bt_ExportBrain, 2);
 
                         //Delete Brain
-                        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40, GridUnitType.Absolute) });
                         BoxView bt_deleteBrain_box = new BoxView();
-                        grid.Add(bt_deleteBrain_box, 4, row);
-                        Grid.SetColumnSpan(bt_deleteBrain_box, 4);
+                        grid.Add(bt_deleteBrain_box, 6, row);
+                        Grid.SetColumnSpan(bt_deleteBrain_box, 2);
 
                         Button bt_DeleteBrain = new Button();
-                        bt_DeleteBrain.Text = "Delete Brain: " + brain;
+                        bt_DeleteBrain.Text = "Delete " + brain;
                         bt_DeleteBrain.HorizontalOptions = LayoutOptions.Fill;
                         bt_DeleteBrain.VerticalOptions = LayoutOptions.Fill;
                         bt_DeleteBrain.Clicked += DeleteBrain_Clicked;
-                        grid.Add(bt_DeleteBrain, 4, row);
-                        Grid.SetColumnSpan(bt_DeleteBrain, 4);
+                        grid.Add(bt_DeleteBrain, 6, row);
+                        Grid.SetColumnSpan(bt_DeleteBrain, 2);
                     }
                     else
                     {
@@ -132,9 +176,9 @@ public partial class Brains : ContentPage
                     }
                 }
             }
-            else
+            else if (!string.IsNullOrEmpty(SQLUtil.BrainFile))
             {
-                string file = AppUtil.GetPath(SQLUtil.BrainFile + ".brain");
+                string file = AppUtil.GetBrainFile(SQLUtil.BrainFile + ".brain");
                 if (!File.Exists(file))
                 {
                     SQLUtil.BrainFile = null;
@@ -195,13 +239,128 @@ public partial class Brains : ContentPage
         }
     }
 
+    private async void ImportBrain_Clicked(object sender, EventArgs e)
+    {
+        try
+        {
+            Dictionary<DevicePlatform, IEnumerable<string>> mimeTypes = new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.Android, new[] { "application/octet-stream" } }
+            };
+
+            PickOptions options = new PickOptions()
+            {
+                PickerTitle = "Which brain file are you wanting to import?",
+                FileTypes = new FilePickerFileType(mimeTypes),
+            };
+
+            FileResult result = await FilePicker.Default.PickAsync(options);
+            if (result != null)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(result.FileName);
+                if (!SQLUtil.BrainList.Contains(fileName))
+                {
+                    string targetFile = AppUtil.GetBrainFile(result.FileName);
+                    using (FileStream outputStream = File.OpenWrite(targetFile))
+                    {
+                        using (Stream inputStream = await result.OpenReadAsync())
+                        {
+                            using (BinaryWriter writer = new BinaryWriter(outputStream))
+                            {
+                                using (BinaryReader reader = new BinaryReader(inputStream))
+                                {
+                                    var bytesRead = 0;
+                                    int bufferSize = 1024;
+                                    var buffer = new byte[bufferSize];
+
+                                    using (inputStream)
+                                    {
+                                        do
+                                        {
+                                            buffer = reader.ReadBytes(bufferSize);
+                                            bytesRead = buffer.Count();
+                                            writer.Write(buffer);
+                                        }
+                                        while (bytesRead > 0);
+                                    }
+                                };
+                            };
+                        };
+                    };
+
+                    SQLUtil.BrainList.Add(fileName);
+                    SQLUtil.BrainFile = fileName;
+
+                    lb_LoadedBrain.Text = "Loaded Brain: " + SQLUtil.BrainFile;
+                    AppUtil.SetConfig("Last Loaded Brain", SQLUtil.BrainFile);
+
+                    LoadGrid();
+                    Talk.Clear();
+
+                    await DisplayAlert("Import Brain", "'" + fileName + "' file has been imported.", "OK");
+                }
+                else
+                {
+                    await DisplayAlert("Import Brain", "'" + fileName + "' brain already exists in list.", "OK");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.AddLog("Brains.ImportBrain_Clicked", ex.Message, ex.StackTrace);
+        }
+    }
+
+    private async void ExportBrain_Clicked(object sender, EventArgs e)
+    {
+        try
+        {
+            Button button = (Button)sender;
+
+            string brainFile = button.Text.Substring(7);
+            string sourceFile = AppUtil.GetBrainFile(brainFile + ".brain");
+            string targetFile = Path.Combine("/storage/emulated/0/Documents/", brainFile + ".brain");
+            using (FileStream outputStream = File.OpenWrite(targetFile))
+            {
+                using (FileStream inputStream = File.OpenRead(sourceFile))
+                {
+                    using (BinaryWriter writer = new BinaryWriter(outputStream))
+                    {
+                        using (BinaryReader reader = new BinaryReader(inputStream))
+                        {
+                            var bytesRead = 0;
+                            int bufferSize = 1024;
+                            var buffer = new byte[bufferSize];
+
+                            using (outputStream)
+                            {
+                                do
+                                {
+                                    buffer = reader.ReadBytes(bufferSize);
+                                    bytesRead = buffer.Count();
+                                    writer.Write(buffer);
+                                }
+                                while (bytesRead > 0);
+                            }
+                        };
+                    };
+                };
+            };
+
+            await DisplayAlert("Export Brain", "'" + brainFile + "' has been exported to Documents folder.", "OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.AddLog("Brains.ExportBrain_Clicked", ex.Message, ex.StackTrace);
+        }
+    }
+
     private async void DeleteBrain_Clicked(object sender, EventArgs e)
     {
         try
         {
             Button bt_DeleteBrain = (Button)sender;
-            string[] text = bt_DeleteBrain.Text.Split(":");
-            string brain = text[1].Trim();
+            string brain = bt_DeleteBrain.Text.Substring(7);
                 
             if (!string.IsNullOrEmpty(brain))
             {
@@ -236,8 +395,7 @@ public partial class Brains : ContentPage
         try
         {
             Button button = (Button)sender;
-            string[] text = button.Text.Split(":");
-            string brain = text[1].Trim();
+            string brain = button.Text.Substring(5);
 
             SQLUtil.BrainFile = brain;
             AppUtil.SetConfig("Last Loaded Brain", SQLUtil.BrainFile);

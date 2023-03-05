@@ -21,8 +21,8 @@
         {
             if (Logs.Count > 0)
             {
-                string filename = string.Format("{0}_{1:yyyy-MM-dd}{2}", @"\log", DateTime.Now, ".txt");
-                string path = AppUtil.GetPath(filename);
+                string filename = string.Format("{0}_{1:yyyy-MM-dd}{2}", @"RealAI2.log", DateTime.Now, ".txt");
+                string path = AppUtil.GetExternalPath(filename);
 
                 string text = "";
 

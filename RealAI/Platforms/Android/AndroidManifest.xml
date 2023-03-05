@@ -3,9 +3,10 @@
 	xmlns:android="http://schemas.android.com/apk/res/android" 
 	package="com.oblivionburn.realai2" 
 	android:installLocation="internalOnly" 
-	android:versionCode="45" 
-	android:versionName="2.3">
+	android:versionCode="48" 
+	android:versionName="2.4.2">
 	
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true" android:label="Real AI"></application>
 	<uses-sdk android:minSdkVersion="24" android:targetSdkVersion="33" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>

@@ -6,7 +6,7 @@
         {
             try
             {
-                string path = @"/storage/emulated/0/Documents/RealAI2/";
+                string path = FileSystem.AppDataDirectory;
 
                 bool path_exits = Directory.Exists(path);
                 if (!path_exits)
@@ -24,7 +24,7 @@
             return null;
         }
 
-        public static string GetPath(string file)
+        public static string GetInternalPath(string file)
         {
             try
             {
@@ -37,7 +37,72 @@
             }
             catch (Exception ex)
             {
-                Logger.AddLog("AppUtil.GetPath", ex.Message, ex.StackTrace);
+                Logger.AddLog("AppUtil.GetInternalPath", ex.Message, ex.StackTrace);
+            }
+
+            return null;
+        }
+
+        public static string GetExternalPath(string file)
+        {
+            try
+            {
+                string basePath = @"/storage/emulated/0/Documents/";
+                if (!string.IsNullOrEmpty(file))
+                {
+                    return Path.Combine(basePath, file);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("AppUtil.GetExternalPath", ex.Message, ex.StackTrace);
+            }
+
+            return null;
+        }
+
+        public static string GetBrainsBasePath()
+        {
+            try
+            {
+                string basePath = GetBasePath();
+                if (!string.IsNullOrEmpty(basePath))
+                {
+                    string brains_base = Path.Combine(basePath, "Brains");
+                    if (!string.IsNullOrEmpty(brains_base))
+                    {
+                        bool brains_base_exists = Directory.Exists(brains_base);
+                        if (!brains_base_exists)
+                        {
+                            Directory.CreateDirectory(brains_base);
+                        }
+
+                        return brains_base;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("AppUtil.GetBrainsBasePath", ex.Message, ex.StackTrace);
+            }
+
+            return null;
+        }
+
+        public static string GetBrainFile(string brainFile)
+        {
+            try
+            {
+                string brains_base = GetBrainsBasePath();
+                if (!string.IsNullOrEmpty(brainFile) &&
+                    !string.IsNullOrEmpty(brains_base))
+                {
+                    return Path.Combine(brains_base, brainFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("AppUtil.GetBrainFile", ex.Message, ex.StackTrace);
             }
 
             return null;
@@ -121,7 +186,7 @@
         {
             try
             {
-                string file = GetPath("BrainList.txt");
+                string file = GetInternalPath("BrainList.txt");
                 if (!string.IsNullOrEmpty(file) &&
                     File.Exists(file))
                 {
@@ -138,7 +203,7 @@
         {
             try
             {
-                string file = GetPath("BrainList.txt");
+                string file = GetInternalPath("BrainList.txt");
                 if (!string.IsNullOrEmpty(file))
                 {
                     File.WriteAllLines(file, SQLUtil.BrainList);
@@ -154,7 +219,7 @@
         {
             try
             {
-                string file = GetPath("Config.ini");
+                string file = GetInternalPath("Config.ini");
                 if (!string.IsNullOrEmpty(file))
                 {
                     List<string> lines = new List<string>();
@@ -193,7 +258,7 @@
         {
             try
             {
-                string file = GetPath("Config.ini");
+                string file = GetInternalPath("Config.ini");
                 if (!string.IsNullOrEmpty(file) &&
                     File.Exists(file))
                 {
