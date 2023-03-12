@@ -1,4 +1,6 @@
-﻿namespace RealAI.Util
+﻿using RealAI.Pages;
+
+namespace RealAI.Util
 {
     public static class AppUtil
     {
@@ -329,6 +331,155 @@
             catch (Exception ex)
             {
                 Logger.AddLog("AppUtil.SaveHistory", ex.Message, ex.StackTrace);
+            }
+        }
+
+        public static string GetTime_Milliseconds(DateTime start)
+        {
+            string result = "";
+
+            try
+            {
+                int milliseconds = (int)(DateTime.Now - start).TotalMilliseconds;
+
+                int seconds = 0;
+                for (int i = 1000; i <= milliseconds;)
+                {
+                    seconds++;
+                    milliseconds -= 1000;
+                }
+
+                int minutes = 0;
+                for (int i = 60; i <= seconds;)
+                {
+                    minutes++;
+                    seconds -= 60;
+                }
+
+                int hours = 0;
+                for (int i = 60; i <= minutes;)
+                {
+                    hours++;
+                    minutes -= 60;
+                }
+
+                if (hours > 9)
+                {
+                    result += hours;
+                }
+                else
+                {
+                    result += "0" + hours;
+                }
+
+                if (minutes > 9)
+                {
+                    result += ":" + minutes;
+                }
+                else
+                {
+                    result += ":0" + minutes;
+                }
+
+                if (seconds > 9)
+                {
+                    result += ":" + seconds;
+                }
+                else
+                {
+                    result += ":0" + seconds;
+                }
+
+                if (milliseconds > 99)
+                {
+                    result += "." + milliseconds;
+                }
+                else if (milliseconds > 9)
+                {
+                    result += ".0" + milliseconds;
+                }
+                else
+                {
+                    result += ".00" + milliseconds;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("AppUtil.GetTime_Milliseconds", ex.Message, ex.StackTrace);
+            }
+
+            return result;
+        }
+
+        public static void InitProgress(ProgressBar progressBar, Label progresLabel)
+        {
+            try
+            {
+                if (MainThread.IsMainThread)
+                {
+                    progressBar.ProgressTo(0, 0, Easing.Linear);
+                    progresLabel.Text = GetTime_Milliseconds(DateTime.Now);
+                }
+                else
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        progressBar.ProgressTo(0, 0, Easing.Linear);
+                        progresLabel.Text = GetTime_Milliseconds(DateTime.Now);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("AppUtil.InitProgress", ex.Message, ex.StackTrace);
+            }
+        }
+
+        public static void UpdateProgress(ProgressBar progressBar, double value, Label progresLabel, DateTime startDateTime)
+        {
+            try
+            {
+                if (MainThread.IsMainThread)
+                {
+                    progressBar.ProgressTo(value, 0, Easing.Linear);
+                    progresLabel.Text = GetTime_Milliseconds(startDateTime);
+                }
+                else
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        progressBar.ProgressTo(value, 0, Easing.Linear);
+                        progresLabel.Text = GetTime_Milliseconds(startDateTime);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("AppUtil.UpdateProgress", ex.Message, ex.StackTrace);
+            }
+        }
+
+        public static void FinishProgress(ProgressBar progressBar, Label progresLabel, DateTime startDateTime)
+        {
+            try
+            {
+                if (MainThread.IsMainThread)
+                {
+                    progressBar.ProgressTo(1, 0, Easing.Linear);
+                    progresLabel.Text = GetTime_Milliseconds(startDateTime);
+                }
+                else
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        progressBar.ProgressTo(1, 0, Easing.Linear);
+                        progresLabel.Text = GetTime_Milliseconds(startDateTime);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("AppUtil.FinishProgress", ex.Message, ex.StackTrace);
             }
         }
     }

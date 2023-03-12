@@ -11,7 +11,10 @@ public partial class Talk : ContentPage
     public static Button btn_Encourage;
     public static Button btn_Discourage;
     public static Button btn_NewSession;
+    public static ProgressBar pb_ResponseTime;
+    public static Label lb_ResponseTime;
 
+    public static DateTime ResponseStart;
     public static System.Timers.Timer AttentionTimer;
 
     public Talk()
@@ -31,6 +34,7 @@ public partial class Talk : ContentPage
             btn_NewSession.Clicked += OnNewSessionClicked;
 
             txt_Output = new Editor();
+            txt_Output.IsSpellCheckEnabled = false;
             txt_Output.IsReadOnly = true;
             txt_Output.FontSize = 18;
             txt_Output.HorizontalOptions = LayoutOptions.Fill;
@@ -62,6 +66,19 @@ public partial class Talk : ContentPage
             btn_Discourage.HorizontalOptions = LayoutOptions.Fill;
             btn_Discourage.VerticalOptions = LayoutOptions.Fill;
             btn_Discourage.Clicked += OnDiscourageClicked;
+
+            pb_ResponseTime = new ProgressBar();
+            pb_ResponseTime.ProgressColor = Colors.DarkCyan;
+
+            lb_ResponseTime = new Label();
+            lb_ResponseTime.FontSize = 18;
+            lb_ResponseTime.TextColor = Color.FromArgb("#FFFFFF");
+            lb_ResponseTime.HorizontalTextAlignment = TextAlignment.Center;
+            lb_ResponseTime.VerticalTextAlignment = TextAlignment.Center;
+            lb_ResponseTime.HorizontalOptions = LayoutOptions.Center;
+            lb_ResponseTime.VerticalOptions = LayoutOptions.Center;
+
+            AppUtil.InitProgress(pb_ResponseTime, lb_ResponseTime);
 
             LoadGrid();
 
@@ -100,6 +117,19 @@ public partial class Talk : ContentPage
             grid.Add(btn_NewSession, 0, row);
             Grid.SetColumnSpan(btn_NewSession, 8);
 
+            //ProgressBar
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView progress_box = new BoxView();
+            grid.Add(progress_box, 0, row);
+            Grid.SetColumnSpan(progress_box, 8);
+
+            grid.Add(pb_ResponseTime, 0, row);
+            Grid.SetColumnSpan(pb_ResponseTime, 8);
+
+            grid.Add(lb_ResponseTime, 0, row);
+            Grid.SetColumnSpan(lb_ResponseTime, 8);
+
             //Output
             row++;
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(2, GridUnitType.Star) });
@@ -113,9 +143,9 @@ public partial class Talk : ContentPage
             //Empty space between Output and Input/Enter
             row++;
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.1, GridUnitType.Star) });
-            BoxView first_empty_box = new BoxView();
-            grid.Add(first_empty_box, 0, row);
-            Grid.SetColumnSpan(first_empty_box, 8);
+            BoxView empty_box = new BoxView();
+            grid.Add(empty_box, 0, row);
+            Grid.SetColumnSpan(empty_box, 8);
 
             //Input and Enter
             row++;
@@ -136,10 +166,10 @@ public partial class Talk : ContentPage
 
             //Empty space between Input/Enter and Encourage/Discourage
             row++;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
-            BoxView empty_box = new BoxView();
-            grid.Add(empty_box, 0, row);
-            Grid.SetColumnSpan(empty_box, 8);
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.1, GridUnitType.Star) });
+            BoxView empty_box2 = new BoxView();
+            grid.Add(empty_box2, 0, row);
+            Grid.SetColumnSpan(empty_box2, 8);
 
             //Encourage and Discourage
             row++;
@@ -160,10 +190,10 @@ public partial class Talk : ContentPage
 
             //Empty space underneath to push everything up
             row++;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
-            BoxView empty_box2 = new BoxView();
-            grid.Add(empty_box2, 0, row);
-            Grid.SetColumnSpan(empty_box2, 8);
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.5, GridUnitType.Star) });
+            BoxView empty_box4 = new BoxView();
+            grid.Add(empty_box4, 0, row);
+            Grid.SetColumnSpan(empty_box4, 8);
 
             Content = grid;
 
@@ -372,19 +402,8 @@ public partial class Talk : ContentPage
                 AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] AI: " + response);
             }
 
-            if (MainThread.IsMainThread)
-            {
-                txt_Input.Text = "";
-                txt_Input.Focus();
-            }
-            else
-            {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    txt_Input.Text = "";
-                    txt_Input.Focus();
-                });
-            }
+            AppUtil.FinishProgress(pb_ResponseTime, lb_ResponseTime, ResponseStart);
+            ResetInput();
         }
         catch (Exception ex)
         {
@@ -399,6 +418,9 @@ public partial class Talk : ContentPage
             if (!string.IsNullOrEmpty(SQLUtil.BrainFile))
             {
                 Brain.Input = txt_Input.Text;
+
+                ResponseStart = DateTime.Now;
+
                 Thread thread = new Thread(Respond);
                 thread.Start();
             }
@@ -540,6 +562,30 @@ public partial class Talk : ContentPage
     private void OnDiscourageClicked(object sender, EventArgs e)
     {
         Discourage();
+    }
+
+    private void ResetInput()
+    {
+        try
+        {
+            if (MainThread.IsMainThread)
+            {
+                txt_Input.Text = "";
+                txt_Input.Focus();
+            }
+            else
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    txt_Input.Text = "";
+                    txt_Input.Focus();
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.AddLog("Talk.ResetInput", ex.Message, ex.StackTrace);
+        }
     }
 
     private void AttentionTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

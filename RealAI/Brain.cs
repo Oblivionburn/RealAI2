@@ -462,6 +462,7 @@ namespace RealAI
                                     outputs.AddRange(SQLUtil.Get_OutputsFromTopics(Topics));
                                 }
                             }
+                            AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.2, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                             if (outputs.Count == 0 &&
                                 Options.WholeResponding)
@@ -473,6 +474,7 @@ namespace RealAI
                                     outputs.AddRange(outs.ToList());
                                 }
                             }
+                            AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.4, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                             if (outputs.Count == 0 &&
                                 Options.ProceduralResponding)
@@ -481,6 +483,7 @@ namespace RealAI
                                 string min_word = SQLUtil.Get_MinWord(WordArray);
                                 outputs.Add(GenerateResponse(min_word, false));
                             }
+                            AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.6, Talk.lb_ResponseTime, Talk.ResponseStart);
                         }
                     }
 
@@ -491,6 +494,7 @@ namespace RealAI
                         string word = SQLUtil.Get_RandomWord();
                         outputs.Add(GenerateResponse(word, false));
                     }
+                    AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.8, Talk.lb_ResponseTime, Talk.ResponseStart);
                 }
                 else
                 {
@@ -498,20 +502,25 @@ namespace RealAI
 
                     if (WordArray.Length > 0)
                     {
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.1, Talk.lb_ResponseTime, Talk.ResponseStart);
+
                         //Add input as output to last response
                         if (!string.IsNullOrEmpty(LastResponse))
                         {
                             UpdateOutputs(CleanInput, LastResponse);
                         }
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.2, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         //Get lowest priority words from input
                         Topics = SQLUtil.Get_MinWords(WordArray);
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.3, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         if (Topics.Length > 0)
                         {
                             //Add words as topics for input
                             UpdateTopics(CleanInput, Topics);
                         }
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.4, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         //Get topic-based response
                         if (Topics.Length > 0 &&
@@ -520,6 +529,7 @@ namespace RealAI
                             //Get highest priority output(s) from matching topics
                             outputs.AddRange(SQLUtil.Get_OutputsFromTopics(Topics));
                         }
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.5, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         if (outputs.Count == 0 &&
                             Options.WholeResponding)
@@ -528,6 +538,7 @@ namespace RealAI
                             string[] outs = SQLUtil.Get_OutputsFromInput(CleanInput);
                             outputs.AddRange(outs.ToList());
                         }
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.6, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         string min_word = "";
                         if (outputs.Count == 0)
@@ -535,6 +546,7 @@ namespace RealAI
                             //Get lowest priority word
                             min_word = SQLUtil.Get_MinWord(WordArray);
                         }
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.7, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         if (outputs.Count == 0 &&
                             !string.IsNullOrEmpty(min_word) &&
@@ -543,6 +555,7 @@ namespace RealAI
                             //Generate response from lowest priority word
                             outputs.Add(GenerateResponse(min_word, false));
                         }
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.7, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         string random_word = "";
                         if (outputs.Count == 0)
@@ -550,6 +563,7 @@ namespace RealAI
                             //Still got nothing? Pick a random word.
                             random_word = SQLUtil.Get_RandomWord();
                         }
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.8, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         if (outputs.Count == 0 &&
                             !string.IsNullOrEmpty(random_word) &&
@@ -558,6 +572,7 @@ namespace RealAI
                             //Generate response from random word
                             outputs.Add(GenerateResponse(random_word, false));
                         }
+                        AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.9, Talk.lb_ResponseTime, Talk.ResponseStart);
                     }
                 }
 
@@ -584,6 +599,7 @@ namespace RealAI
                         }
                     }
                 }
+                AppUtil.UpdateProgress(Talk.pb_ResponseTime, 1, Talk.lb_ResponseTime, Talk.ResponseStart);
             }
             catch (Exception ex)
             {

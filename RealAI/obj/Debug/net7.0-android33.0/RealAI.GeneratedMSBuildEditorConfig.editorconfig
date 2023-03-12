@@ -32,11 +32,23 @@ build_metadata.AdditionalFiles.ManifestResourceName = RealAI.Pages.Brains.xaml
 build_metadata.AdditionalFiles.TargetPath = Pages\Brains.xaml
 build_metadata.AdditionalFiles.RelativePath = Pages\Brains.xaml
 
+[F:/Development/Android/Projects/RealAI/RealAI/Pages/ExportBrain.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RealAI.Pages.ExportBrain.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\ExportBrain.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\ExportBrain.xaml
+
 [F:/Development/Android/Projects/RealAI/RealAI/Pages/FixSpelling.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = RealAI.Pages.FixSpelling.xaml
 build_metadata.AdditionalFiles.TargetPath = Pages\FixSpelling.xaml
 build_metadata.AdditionalFiles.RelativePath = Pages\FixSpelling.xaml
+
+[F:/Development/Android/Projects/RealAI/RealAI/Pages/ImportBrain.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RealAI.Pages.ImportBrain.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\ImportBrain.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\ImportBrain.xaml
 
 [F:/Development/Android/Projects/RealAI/RealAI/Pages/Options.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml

@@ -10,6 +10,9 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
         LoadConfig();
+
+        Routing.RegisterRoute("ImportBrain", typeof(ImportBrain));
+        Routing.RegisterRoute("ExportBrain", typeof(ExportBrain));
     }
 
     private void LoadConfig()

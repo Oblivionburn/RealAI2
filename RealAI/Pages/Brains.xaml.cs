@@ -1,4 +1,3 @@
-using Android.Webkit;
 using RealAI.Util;
 
 namespace RealAI.Pages;
@@ -6,7 +5,8 @@ namespace RealAI.Pages;
 public partial class Brains : ContentPage
 {
     public Grid grid;
-    public Label lb_LoadedBrain;
+    private bool gridLoaded;
+    public static Label lb_LoadedBrain;
     public Button bt_NewBrain;
     public Button bt_ImportBrain;
 
@@ -187,10 +187,19 @@ public partial class Brains : ContentPage
             }
 
             Content = grid;
+            gridLoaded = true;
         }
         catch (Exception ex)
         {
             Logger.AddLog("Brains.LoadGrid", ex.Message, ex.StackTrace);
+        }
+    }
+
+    protected override void OnAppearing()
+    {
+        if (!gridLoaded)
+        {
+            LoadGrid();
         }
     }
 
@@ -254,50 +263,14 @@ public partial class Brains : ContentPage
                 FileTypes = new FilePickerFileType(mimeTypes),
             };
 
-            FileResult result = await FilePicker.Default.PickAsync(options);
-            if (result != null)
+            ImportBrain.FilePickerResult = await FilePicker.Default.PickAsync(options);
+            if (ImportBrain.FilePickerResult != null)
             {
-                string fileName = Path.GetFileNameWithoutExtension(result.FileName);
+                string fileName = Path.GetFileNameWithoutExtension(ImportBrain.FilePickerResult.FileName);
                 if (!SQLUtil.BrainList.Contains(fileName))
                 {
-                    string targetFile = AppUtil.GetBrainFile(result.FileName);
-                    using (FileStream outputStream = File.OpenWrite(targetFile))
-                    {
-                        using (Stream inputStream = await result.OpenReadAsync())
-                        {
-                            using (BinaryWriter writer = new BinaryWriter(outputStream))
-                            {
-                                using (BinaryReader reader = new BinaryReader(inputStream))
-                                {
-                                    var bytesRead = 0;
-                                    int bufferSize = 1024;
-                                    var buffer = new byte[bufferSize];
-
-                                    using (inputStream)
-                                    {
-                                        do
-                                        {
-                                            buffer = reader.ReadBytes(bufferSize);
-                                            bytesRead = buffer.Count();
-                                            writer.Write(buffer);
-                                        }
-                                        while (bytesRead > 0);
-                                    }
-                                };
-                            };
-                        };
-                    };
-
-                    SQLUtil.BrainList.Add(fileName);
-                    SQLUtil.BrainFile = fileName;
-
-                    lb_LoadedBrain.Text = "Loaded Brain: " + SQLUtil.BrainFile;
-                    AppUtil.SetConfig("Last Loaded Brain", SQLUtil.BrainFile);
-
-                    LoadGrid();
-                    Talk.Clear();
-
-                    await DisplayAlert("Import Brain", "'" + fileName + "' file has been imported.", "OK");
+                    gridLoaded = false;
+                    await Shell.Current.GoToAsync("ImportBrain");
                 }
                 else
                 {
@@ -318,36 +291,14 @@ public partial class Brains : ContentPage
             Button button = (Button)sender;
 
             string brainFile = button.Text.Substring(7);
-            string sourceFile = AppUtil.GetBrainFile(brainFile + ".brain");
-            string targetFile = Path.Combine("/storage/emulated/0/Documents/", brainFile + ".brain");
-            using (FileStream outputStream = File.OpenWrite(targetFile))
+            ExportBrain.SourceFile = AppUtil.GetBrainFile(brainFile + ".brain");
+            ExportBrain.TargetFile = Path.Combine("/storage/emulated/0/Documents/", brainFile + ".brain");
+
+            if (!string.IsNullOrEmpty(ExportBrain.SourceFile) &&
+                !string.IsNullOrEmpty(ExportBrain.TargetFile))
             {
-                using (FileStream inputStream = File.OpenRead(sourceFile))
-                {
-                    using (BinaryWriter writer = new BinaryWriter(outputStream))
-                    {
-                        using (BinaryReader reader = new BinaryReader(inputStream))
-                        {
-                            var bytesRead = 0;
-                            int bufferSize = 1024;
-                            var buffer = new byte[bufferSize];
-
-                            using (outputStream)
-                            {
-                                do
-                                {
-                                    buffer = reader.ReadBytes(bufferSize);
-                                    bytesRead = buffer.Count();
-                                    writer.Write(buffer);
-                                }
-                                while (bytesRead > 0);
-                            }
-                        };
-                    };
-                };
-            };
-
-            await DisplayAlert("Export Brain", "'" + brainFile + "' has been exported to Documents folder.", "OK");
+                await Shell.Current.GoToAsync("ExportBrain");
+            }
         }
         catch (Exception ex)
         {

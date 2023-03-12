@@ -41,6 +41,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Pages\ImportBrain.xaml.cs">
+	    <DependentUpon>ImportBrain.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Pages\Talk.xaml.cs">
 	    <DependentUpon>Talk.xaml</DependentUpon>
 	  </Compile>
@@ -61,10 +64,16 @@
 	  <MauiXaml Update="Pages\Brains.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Pages\ExportBrain.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\FixSpelling.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Options.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\ImportBrain.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Thinking.xaml">
