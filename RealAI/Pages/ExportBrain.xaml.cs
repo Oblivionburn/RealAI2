@@ -141,7 +141,7 @@ public partial class ExportBrain : ContentPage
 
             AppUtil.FinishProgress(pb_ProgressTime, lb_ProgressTime, ProgressStart);
 
-            await DisplayAlert("Export Brain", "'" + fileName + "' has been exported to Documents folder.\nTotal export time: " + lb_ProgressTime.Text, "OK");
+            await DisplayAlert("Export Brain", "'" + fileName + "' has been exported to \\Documents\\RealAIv" + AppUtil.GetVersion() + "\\ folder.\n\nTotal export time: " + lb_ProgressTime.Text, "OK");
         }
         catch (Exception ex)
         {

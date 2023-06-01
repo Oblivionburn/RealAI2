@@ -53,11 +53,25 @@
             Route="Options"
         />
     </FlyoutItem>
+    <FlyoutItem Title="Read File">
+        <ShellContent
+            Title="Read File"
+            ContentTemplate="{DataTemplate local:ReadFile}"
+            Route="ReadFile"
+        />
+    </FlyoutItem>
     <FlyoutItem Title="Fix Spelling">
         <ShellContent
             Title="Fix Spelling"
             ContentTemplate="{DataTemplate local:FixSpelling}"
             Route="FixSpelling"
+        />
+    </FlyoutItem>
+    <FlyoutItem Title="About">
+        <ShellContent
+            Title="About"
+            ContentTemplate="{DataTemplate local:About}"
+            Route="About"
         />
     </FlyoutItem>
     <MenuItem

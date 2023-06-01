@@ -292,7 +292,7 @@ public partial class Brains : ContentPage
 
             string brainFile = button.Text.Substring(7);
             ExportBrain.SourceFile = AppUtil.GetBrainFile(brainFile + ".brain");
-            ExportBrain.TargetFile = Path.Combine("/storage/emulated/0/Documents/", brainFile + ".brain");
+            ExportBrain.TargetFile = AppUtil.GetExternalPath(brainFile + ".brain");
 
             if (!string.IsNullOrEmpty(ExportBrain.SourceFile) &&
                 !string.IsNullOrEmpty(ExportBrain.TargetFile))

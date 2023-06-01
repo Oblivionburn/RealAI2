@@ -218,6 +218,80 @@ namespace RealAI.Util
             return false;
         }
 
+        public static bool BulkExecute(List<SqliteCommand> commands, ProgressBar progressBar, Label progressLabel, Label progressStep, DateTime progressStart, CancellationToken cancelToken)
+        {
+            try
+            {
+                double count = 0;
+                double total = commands.Count;
+
+                AppUtil.UpdateProgress(progressBar, 0, progressLabel, progressStart);
+
+                if (!string.IsNullOrEmpty(BrainFile))
+                {
+                    SqliteConnection connection = GetConnection(BrainFile);
+                    using (SqliteConnection con = new SqliteConnection(connection.ConnectionString))
+                    {
+                        con.Open();
+
+                        using (SqliteTransaction transaction = con.BeginTransaction())
+                        {
+                            for (int i = 0; i < total; i++)
+                            {
+                                if (cancelToken.IsCancellationRequested)
+                                {
+                                    break;
+                                }
+
+                                MainThread.InvokeOnMainThreadAsync(() =>
+                                {
+                                    progressStep.Text = "Saving data...(" + count + "/" + total + ")";
+                                });
+
+                                SqliteCommand command = commands[i];
+
+                                using (SqliteCommand cmd = new SqliteCommand(command.CommandText, con, transaction))
+                                {
+                                    foreach (SqliteParameter existing in command.Parameters)
+                                    {
+                                        if (cancelToken.IsCancellationRequested)
+                                        {
+                                            break;
+                                        }
+
+                                        SqliteParameter parm = new SqliteParameter();
+                                        parm.ParameterName = existing.ParameterName;
+                                        parm.Value = existing.Value;
+                                        parm.DbType = existing.DbType;
+                                        cmd.Parameters.Add(parm);
+                                    }
+
+                                    cmd.ExecuteNonQuery();
+
+                                    count++;
+                                    AppUtil.UpdateProgress(progressBar, count / total, progressLabel, progressStart);
+                                    Thread.Sleep(10);
+                                }
+                            }
+
+                            if (!cancelToken.IsCancellationRequested)
+                            {
+                                transaction.Commit();
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("SqlUtil.BulkQuery", ex.Message, ex.StackTrace);
+            }
+
+            return false;
+        }
+
         public static bool Execute(SqliteCommand command)
         {
             try

@@ -1,17 +1,19 @@
-﻿using RealAI.Pages;
-
-namespace RealAI.Util
+﻿namespace RealAI.Util
 {
     public static class AppUtil
     {
+        public static string GetVersion()
+        {
+            return AppInfo.Current.VersionString;
+        }
+
         public static string GetBasePath()
         {
             try
             {
                 string path = FileSystem.AppDataDirectory;
 
-                bool path_exits = Directory.Exists(path);
-                if (!path_exits)
+                if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                 }
@@ -21,6 +23,27 @@ namespace RealAI.Util
             catch (Exception ex)
             {
                 Logger.AddLog("AppUtil.GetBasePath", ex.Message, ex.StackTrace);
+            }
+
+            return null;
+        }
+
+        public static string GetBaseExternalPath()
+        {
+            try
+            {
+                string path = @"/storage/emulated/0/Documents/RealAIv" + GetVersion() + @"/";
+
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                return path;
+            }
+            catch (Exception ex)
+            {
+                Logger.AddLog("AppUtil.GetBaseExternalPath", ex.Message, ex.StackTrace);
             }
 
             return null;
@@ -49,8 +72,9 @@ namespace RealAI.Util
         {
             try
             {
-                string basePath = @"/storage/emulated/0/Documents/";
-                if (!string.IsNullOrEmpty(file))
+                string basePath = GetBaseExternalPath();
+                if (!string.IsNullOrEmpty(basePath) && 
+                    !string.IsNullOrEmpty(file))
                 {
                     return Path.Combine(basePath, file);
                 }
@@ -422,7 +446,7 @@ namespace RealAI.Util
                 }
                 else
                 {
-                    MainThread.BeginInvokeOnMainThread(() =>
+                    MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         progressBar.ProgressTo(0, 0, Easing.Linear);
                         progresLabel.Text = GetTime_Milliseconds(DateTime.Now);
@@ -446,7 +470,7 @@ namespace RealAI.Util
                 }
                 else
                 {
-                    MainThread.BeginInvokeOnMainThread(() =>
+                    MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         progressBar.ProgressTo(value, 0, Easing.Linear);
                         progresLabel.Text = GetTime_Milliseconds(startDateTime);
@@ -470,7 +494,7 @@ namespace RealAI.Util
                 }
                 else
                 {
-                    MainThread.BeginInvokeOnMainThread(() =>
+                    MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         progressBar.ProgressTo(1, 0, Easing.Linear);
                         progresLabel.Text = GetTime_Milliseconds(startDateTime);
