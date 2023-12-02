@@ -85,6 +85,9 @@
 	  <MauiXaml Update="Pages\ReadFile.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Pages\SelectFolder.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\Thinking.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

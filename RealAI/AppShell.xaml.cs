@@ -13,12 +13,16 @@ public partial class AppShell : Shell
 
         Routing.RegisterRoute("ImportBrain", typeof(ImportBrain));
         Routing.RegisterRoute("ExportBrain", typeof(ExportBrain));
+        Routing.RegisterRoute("SelectFolder", typeof(SelectFolder));
+        Routing.RegisterRoute("Brains", typeof(Brains));
     }
 
     private void LoadConfig()
     {
         try
         {
+            AppUtil.SelectedFolder = AppUtil.GetConfig("ExternalFolder");
+
             AppUtil.GetBrainList();
 
             string lastBrain = AppUtil.GetConfig("Last Loaded Brain");

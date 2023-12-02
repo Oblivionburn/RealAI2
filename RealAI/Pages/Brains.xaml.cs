@@ -13,7 +13,26 @@ public partial class Brains : ContentPage
     public Brains()
 	{
 		InitializeComponent();
-        LoadGrid();
+    }
+
+    protected override void OnAppearing()
+    {
+        LoadPage();
+    }
+
+    public void LoadPage()
+    {
+        if (FolderPermissions.HasPermissions())
+        {
+            if (!gridLoaded)
+            {
+                LoadGrid();
+            }
+        }
+        else
+        {
+            Shell.Current.GoToAsync("SelectFolder");
+        }
     }
 
     private void LoadGrid()
@@ -192,14 +211,6 @@ public partial class Brains : ContentPage
         catch (Exception ex)
         {
             Logger.AddLog("Brains.LoadGrid", ex.Message, ex.StackTrace);
-        }
-    }
-
-    protected override void OnAppearing()
-    {
-        if (!gridLoaded)
-        {
-            LoadGrid();
         }
     }
 

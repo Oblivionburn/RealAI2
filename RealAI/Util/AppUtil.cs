@@ -1,7 +1,27 @@
-﻿namespace RealAI.Util
+﻿using AndroidX.DocumentFile.Provider;
+using RealAI.Pages;
+
+namespace RealAI.Util
 {
     public static class AppUtil
     {
+        public static string SelectedFolder;
+
+        public static bool DeleteFile(DocumentFile folder, string fileName)
+        {
+            DocumentFile[] files = folder.ListFiles();
+            for (int i = 0; i < files.Length; i++)
+            {
+                DocumentFile existingFile = files[i];
+                if (existingFile.Name == fileName)
+                {
+                    return existingFile.Delete();
+                }
+            }
+
+            return false;
+        }
+
         public static string GetVersion()
         {
             return AppInfo.Current.VersionString;
@@ -28,11 +48,26 @@
             return null;
         }
 
+        public static void SetBaseExternalPath(Android.Net.Uri uri)
+        {
+            string[] pathSegments = uri.Path.Split(':');
+            if (pathSegments.Length > 1)
+            {
+                SelectedFolder = pathSegments[1];
+                SetConfig("ExternalFolder", SelectedFolder);
+
+                var page = Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
+                Application.Current.MainPage.Navigation.RemovePage(page);
+
+                Shell.Current.GoToAsync(nameof(Brains), false);
+            }
+        }
+
         public static string GetBaseExternalPath()
         {
             try
             {
-                string path = @"/storage/emulated/0/Documents/RealAIv" + GetVersion() + @"/";
+                string path = Path.Combine(@"/storage/emulated/0/", SelectedFolder);
 
                 if (!Directory.Exists(path))
                 {

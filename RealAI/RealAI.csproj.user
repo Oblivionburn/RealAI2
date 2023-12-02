@@ -30,6 +30,9 @@
     <MauiXaml Update="Pages\ImportBrain.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\SelectFolder.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\Thinking.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

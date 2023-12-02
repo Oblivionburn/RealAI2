@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace RealAI;
+﻿namespace RealAI;
 
 public static class MauiProgram
 {

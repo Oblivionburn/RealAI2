@@ -1,3 +1,5 @@
+using Android.OS;
+using Java.IO;
 using RealAI.Util;
 
 namespace RealAI.Pages;
@@ -105,11 +107,12 @@ public partial class ExportBrain : ContentPage
 
             long totalBytes = new FileInfo(SourceFile).Length;
 
-            using (FileStream outputStream = File.OpenWrite(TargetFile))
+            //Get file using persisted permissions
+            using (ParcelFileDescriptor fileDescriptor = FolderPermissions.GetFileDescriptor(Path.GetFileName(TargetFile), Path.GetExtension(TargetFile)))
             {
-                using (FileStream inputStream = File.OpenRead(SourceFile))
+                using (FileOutputStream outputStream = new FileOutputStream(fileDescriptor.FileDescriptor))
                 {
-                    using (BinaryWriter writer = new BinaryWriter(outputStream))
+                    using (FileStream inputStream = System.IO.File.OpenRead(SourceFile))
                     {
                         using (BinaryReader reader = new BinaryReader(inputStream))
                         {
@@ -130,18 +133,18 @@ public partial class ExportBrain : ContentPage
                                     double percent_completed = totalBytesRead / totalBytes;
                                     AppUtil.UpdateProgress(pb_ProgressTime, percent_completed, lb_ProgressTime, ProgressStart);
 
-                                    writer.Write(buffer);
+                                    outputStream.Write(buffer);
                                 }
                                 while (bytesRead > 0);
                             }
                         };
                     };
                 };
-            };
+            }
 
             AppUtil.FinishProgress(pb_ProgressTime, lb_ProgressTime, ProgressStart);
 
-            await DisplayAlert("Export Brain", "'" + fileName + "' has been exported to \\Documents\\RealAIv" + AppUtil.GetVersion() + "\\ folder.\n\nTotal export time: " + lb_ProgressTime.Text, "OK");
+            await DisplayAlert("Export Brain", "'" + fileName + "' has been exported to " + AppUtil.SelectedFolder + " folder.\n\nTotal export time: " + lb_ProgressTime.Text, "OK");
         }
         catch (Exception ex)
         {

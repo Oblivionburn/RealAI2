@@ -109,7 +109,7 @@ public partial class Talk : ContentPage
 
             //New Session
             int row = 0;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.25, GridUnitType.Star) });
             BoxView new_box = new BoxView();
             grid.Add(new_box, 0, row);
             Grid.SetColumnSpan(new_box, 8);
@@ -132,7 +132,7 @@ public partial class Talk : ContentPage
 
             //Output
             row++;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(2, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1.5, GridUnitType.Star) });
             BoxView output_box = new BoxView();
             grid.Add(output_box, 0, row);
             Grid.SetColumnSpan(output_box, 8);
@@ -149,7 +149,7 @@ public partial class Talk : ContentPage
 
             //Input and Enter
             row++;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.3, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.25, GridUnitType.Star) });
             BoxView input_box = new BoxView();
             grid.Add(input_box, 0, row);
             Grid.SetColumnSpan(input_box, 6);
@@ -173,7 +173,7 @@ public partial class Talk : ContentPage
 
             //Encourage and Discourage
             row++;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.3, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.25, GridUnitType.Star) });
             BoxView encourage_box = new BoxView();
             grid.Add(encourage_box, 0, row);
             Grid.SetColumnSpan(encourage_box, 3);
