@@ -24,6 +24,9 @@
     <MauiXaml Update="Pages\FixSpelling.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\MergeBrains.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\Options.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

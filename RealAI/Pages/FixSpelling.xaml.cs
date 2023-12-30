@@ -17,7 +17,11 @@ public partial class FixSpelling : ContentPage
     public FixSpelling()
 	{
 		InitializeComponent();
+        InitControls();
+    }
 
+    private void InitControls()
+    {
         lb_Picker = new Label();
         lb_Picker.FontSize = 20;
         lb_Picker.BackgroundColor = BackgroundColor;
@@ -28,7 +32,7 @@ public partial class FixSpelling : ContentPage
         lb_Picker.VerticalOptions = LayoutOptions.Center;
 
         WordPicker = new Picker();
-		WordPicker.FontSize = 20;
+        WordPicker.FontSize = 20;
         WordPicker.HorizontalTextAlignment = TextAlignment.Start;
         WordPicker.VerticalTextAlignment = TextAlignment.Center;
         WordPicker.HorizontalOptions = LayoutOptions.Fill;
@@ -154,10 +158,10 @@ public partial class FixSpelling : ContentPage
 
         if (!string.IsNullOrEmpty(SQLUtil.BrainFile))
         {
-            List<string> words = SQLUtil.Get_Words();
-            foreach (string word in words)
+            List<Word> words = SQLUtil.Get_Words(SQLUtil.BrainFile).ConfigureAwait(false).GetAwaiter().GetResult();
+            foreach (Word word in words)
             {
-                WordList.Add(word);
+                WordList.Add(word.word);
             }
         }
 

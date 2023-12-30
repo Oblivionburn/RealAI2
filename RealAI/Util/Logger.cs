@@ -4,15 +4,21 @@
     {
         #region Variables
 
+        public static bool Error;
         public static List<Log> Logs = new List<Log>();
 
         #endregion
 
         #region Methods
 
-        public static async void AddLog(string source, string message, string stack_trace)
+        public static async Task AddLog(string source, string message, string stack_trace)
         {
-            await Shell.Current.DisplayAlert("Error", message, "OK");
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                Shell.Current.DisplayAlert("Error in " + source, message + "\n\n" + stack_trace, "OK");
+            });
+
+            Error = true;
             Logs.Add(new Log(source, message, stack_trace));
             WriteLog();
         }

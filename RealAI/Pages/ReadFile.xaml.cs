@@ -1,5 +1,4 @@
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using RealAI.Util;
 
@@ -14,15 +13,14 @@ public partial class ReadFile : ContentPage
 
     private ProgressBar pb_ProgressTime;
     private Label lb_ProgressTime;
+    private Label lb_ProgressMain;
     private Label lb_ProgressStep;
     private DateTime ProgressStart;
     private Button bt_Cancel;
 
     private CancellationTokenSource ReadingTokenSource;
 
-    private List<string> words;
     private List<string> inputs;
-    private List<SqliteCommand> commands;
     private StringBuilder stringBuilder;
 
     public ReadFile()
@@ -67,6 +65,18 @@ public partial class ReadFile : ContentPage
             };
 
             lb_ProgressStep = new Label
+            {
+                FontSize = 16,
+                Text = "",
+                TextColor = Color.FromArgb("#FFFFFF"),
+                HorizontalTextAlignment = TextAlignment.Center,
+                VerticalTextAlignment = TextAlignment.Center,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center,
+                IsVisible = false
+            };
+
+            lb_ProgressMain = new Label
             {
                 FontSize = 16,
                 Text = "",
@@ -131,6 +141,16 @@ public partial class ReadFile : ContentPage
             top_empty_box.Color = BackgroundColor;
             grid.Add(top_empty_box, 0, row);
             Grid.SetColumnSpan(top_empty_box, 8);
+
+            //Progress Main
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView lb_main_box = new BoxView();
+            lb_main_box.Color = BackgroundColor;
+            grid.Add(lb_main_box, 0, row);
+            Grid.SetColumnSpan(lb_main_box, 8);
+            grid.Add(lb_ProgressMain, 0, row);
+            Grid.SetColumnSpan(lb_ProgressMain, 8);
 
             //Progress Step
             row++;
@@ -264,6 +284,7 @@ public partial class ReadFile : ContentPage
             bt_ReadFile.IsVisible = true;
 
             lb_ProgressTime.IsVisible = false;
+            lb_ProgressMain.IsVisible = false;
             lb_ProgressStep.IsVisible = false;
             pb_ProgressTime.IsVisible = false;
             bt_Cancel.IsVisible = false;
@@ -285,6 +306,7 @@ public partial class ReadFile : ContentPage
                 bt_ReadFile.IsVisible = false;
 
                 lb_ProgressTime.IsVisible = true;
+                lb_ProgressMain.IsVisible = true;
                 lb_ProgressStep.IsVisible = true;
                 pb_ProgressTime.IsVisible = true;
                 bt_Cancel.IsVisible = true;
@@ -294,15 +316,11 @@ public partial class ReadFile : ContentPage
 
                 ReadingTokenSource = new CancellationTokenSource();
                 
-                words = new List<string>();
                 inputs = new List<string>();
-                commands = new List<SqliteCommand>();
                 stringBuilder = new StringBuilder();
 
                 await Task.Run(() => ProcessFile_ReadLines(ReadingTokenSource.Token)).WaitAsync(ReadingTokenSource.Token);
-                await Task.Run(() => ProcessFile_CompileWords(ReadingTokenSource.Token)).WaitAsync(ReadingTokenSource.Token);
                 await Task.Run(() => ProcessFile_IdentifySentences(ReadingTokenSource.Token)).WaitAsync(ReadingTokenSource.Token);
-                await Task.Run(() => ProcessFile_PrepData(ReadingTokenSource.Token)).WaitAsync(ReadingTokenSource.Token);
                 await Task.Run(() => ProcessFile_SaveData(ReadingTokenSource.Token)).WaitAsync(ReadingTokenSource.Token);
                 await ReadingDone();
             }
@@ -321,11 +339,16 @@ public partial class ReadFile : ContentPage
     {
         try
         {
-            double count = 0;
+            double count = 1;
             double total = 0;
 
             string[] lines = File.ReadAllLines(lb_ReadFile.Text);
             total = lines.Length;
+
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                lb_ProgressMain.Text = "Reading lines from file...";
+            });
 
             for (int l = 0; l < total; l++)
             {
@@ -336,58 +359,97 @@ public partial class ReadFile : ContentPage
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    lb_ProgressStep.Text = "Reading lines from file...(" + count + "/" + total + ")";
+                    lb_ProgressStep.Text = "(" + count + "/" + total + ")";
                 });
 
                 string line = lines[l];
-                int line_length = line.Length;
 
                 string new_line = line.Trim();
-                int new_line_length = new_line.Length;
+                int lineLength = new_line.Length;
 
-                if (new_line_length > 0)
+                if (lineLength > 0)
                 {
                     bool replaced_semicolon = false;
 
-                    for (var i = 0; i < line_length; i++)
+                    for (int i = 0; i < lineLength; i++)
                     {
                         if (token.IsCancellationRequested)
                         {
                             break;
                         }
 
-                        string value = line[i].ToString();
-                        if (Brain.NormalCharacters.IsMatch(value) &&
-                            value != " ")
-                        {
-                            if (replaced_semicolon)
-                            {
-                                replaced_semicolon = false;
-                                stringBuilder.Append(value.ToUpper());
-                            }
-                            else
-                            {
-                                stringBuilder.Append(value);
-                            }
-                        }
-                        else if (value == "." ||
-                                 value == "!" ||
-                                 value == "?" ||
-                                 value == "," ||
-                                 value == "'" ||
-                                 value == "’" ||
-                                 value == ":" ||
-                                 value == "-" ||
-                                 value == ";" ||
-                                 value == " ")
-                        {
-                            if (value == ";")
-                            {
-                                replaced_semicolon = true;
-                                value = ".";
-                            }
+                        string value = new_line[i].ToString();
 
-                            stringBuilder.Append(value);
+                        if (!string.IsNullOrEmpty(value))
+                        {
+                            if (value == "\r" ||
+                                value == "\n" ||
+                                value == Environment.NewLine)
+                            {
+
+                            }
+                            else if (Brain.NormalCharacters.IsMatch(value) &&
+                                     value != " ")
+                            {
+                                if (replaced_semicolon)
+                                {
+                                    replaced_semicolon = false;
+                                    stringBuilder.Append(value.ToUpper());
+                                }
+                                else
+                                {
+                                    stringBuilder.Append(value);
+                                }
+                            }
+                            else if (!Brain.NormalCharacters.IsMatch(value) &&
+                                     value != "'" &&
+                                     value != "’")
+                            {
+                                if (value == ".")
+                                {
+                                    if (i > 0)
+                                    {
+                                        if (new_line[i - 1] != '.')
+                                        {
+                                            stringBuilder.Append(" ");
+                                        }
+
+                                        stringBuilder.Append(value);
+                                    }
+                                    else
+                                    {
+                                        stringBuilder.Append(value);
+                                    }
+
+                                    if (i < lineLength - 1)
+                                    {
+                                        if (new_line[i + 1] != ' ' &&
+                                            new_line[i + 1] != '.')
+                                        {
+                                            stringBuilder.Append(" ");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (value == ";")
+                                    {
+                                        replaced_semicolon = true;
+                                        value = ".";
+                                    }
+
+                                    stringBuilder.Append(" ");
+                                    stringBuilder.Append(value);
+
+                                    if (i < lineLength - 1)
+                                    {
+                                        if (new_line[i + 1] != ' ')
+                                        {
+                                            stringBuilder.Append(" ");
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -408,74 +470,25 @@ public partial class ReadFile : ContentPage
         }
     }
 
-    private async Task ProcessFile_CompileWords(CancellationToken token)
-    {
-        try
-        {
-            double count = 0;
-            double total = 0;
-
-            if (!token.IsCancellationRequested &&
-                !string.IsNullOrEmpty(stringBuilder.ToString()) &&
-                stringBuilder.ToString().Length > 2)
-            {
-                AppUtil.UpdateProgress(pb_ProgressTime, 0, lb_ProgressTime, ProgressStart);
-
-                string[] gap_array = Brain.GapSpecials(stringBuilder.ToString()).Split(' ');
-
-                count = 0;
-                total = gap_array.Length;
-
-                for (int i = 0; i < total; i++)
-                {
-                    if (token.IsCancellationRequested)
-                    {
-                        break;
-                    }
-
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        lb_ProgressStep.Text = "Compiling words...(" + count + "/" + total + ")";
-                    });
-
-                    string word = gap_array[i];
-
-                    if (!string.IsNullOrEmpty(word))
-                    {
-                        words.Add(word);
-                    }
-
-                    count++;
-
-                    AppUtil.UpdateProgress(pb_ProgressTime, count / total, lb_ProgressTime, ProgressStart);
-                    Thread.Sleep(10);
-                }
-            }
-
-            await Task.Delay(1000, token);
-        }
-        catch (Exception ex)
-        {
-            Logger.AddLog("ReadFile.ProcessFile_CompileWords", ex.Message, ex.StackTrace);
-        }
-    }
-
     private async Task ProcessFile_IdentifySentences(CancellationToken token)
     {
         try
         {
-            double count = 0;
+            double count = 1;
             double total = 0;
 
-            if (!token.IsCancellationRequested &&
-                words.Count > 0)
+            if (!token.IsCancellationRequested)
             {
                 AppUtil.UpdateProgress(pb_ProgressTime, 0, lb_ProgressTime, ProgressStart);
 
-                string[] words_array = words.ToArray();
+                string[] words_array = stringBuilder.ToString().Split(' ');
 
-                count = 0;
                 total = words_array.Length;
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    lb_ProgressMain.Text = "Identifying sentences...";
+                });
 
                 StringBuilder input = new StringBuilder();
                 for (int i = 0; i < total; i++)
@@ -487,13 +500,12 @@ public partial class ReadFile : ContentPage
 
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        lb_ProgressStep.Text = "Identifying sentences...(" + count + "/" + total + ")";
+                        lb_ProgressStep.Text = "(" + count + "/" + total + ")";
                     });
 
                     string word = words_array[i];
 
                     input.Append(word);
-                    input.Append(" ");
 
                     if (word == "?" ||
                         word == "!")
@@ -503,18 +515,24 @@ public partial class ReadFile : ContentPage
                     }
                     else if (word == ".")
                     {
-                        if (i < words_array.Length - 1 &&
+                        if (i < total - 1 &&
                             i > 0)
                         {
-                            string previous_word = words_array[i - 1];
-                            string next_word = words_array[i + 1];
-                            if (next_word != "." &&
-                                previous_word != ".")
+                            if (words_array[i + 1] != "." &&
+                                words_array[i - 1] != ".")
                             {
                                 inputs.Add(input.ToString().Trim());
                                 input = new StringBuilder();
                             }
                         }
+                        else if (i == total - 1)
+                        {
+                            inputs.Add(input.ToString().Trim());
+                        }
+                    }
+                    else if (word != " ")
+                    {
+                        input.Append(" ");
                     }
 
                     count++;
@@ -522,8 +540,6 @@ public partial class ReadFile : ContentPage
                     AppUtil.UpdateProgress(pb_ProgressTime, count / total, lb_ProgressTime, ProgressStart);
                     Thread.Sleep(10);
                 }
-
-                words.Clear();
             }
 
             await Task.Delay(1000, token);
@@ -534,11 +550,11 @@ public partial class ReadFile : ContentPage
         }
     }
 
-    private async Task ProcessFile_PrepData(CancellationToken token)
+    private async Task ProcessFile_SaveData(CancellationToken token)
     {
         try
         {
-            double count = 0;
+            double count = 1;
             double total = 0;
 
             if (!token.IsCancellationRequested &&
@@ -546,7 +562,6 @@ public partial class ReadFile : ContentPage
             {
                 AppUtil.UpdateProgress(pb_ProgressTime, 0, lb_ProgressTime, ProgressStart);
 
-                count = 0;
                 total = inputs.Count;
 
                 for (int i = 0; i < total; i++)
@@ -558,18 +573,43 @@ public partial class ReadFile : ContentPage
 
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        lb_ProgressStep.Text = "Prepping data...(" + count + "/" + total + ")";
+                        lb_ProgressMain.Text = "Saving data (Batch: " + count + " / " + total + ")";
                     });
 
-                    string existing = inputs[i];
-
-                    string[] WordArray = existing.Split(' ');
-                    if (WordArray.Length > 0)
+                    string input = inputs[i];
+                    if (input.Length > 0)
                     {
-                        commands.AddRange(Brain.AddInputs(Brain.RulesCheck(existing)));
-                        commands.AddRange(Brain.AddWords(WordArray));
-                        commands.AddRange(Brain.AddPreWords(WordArray));
-                        commands.AddRange(Brain.AddProWords(WordArray));
+                        string cleanInput = Brain.RulesCheck(input);
+                        if (!string.IsNullOrEmpty(cleanInput))
+                        {
+                            List<SqliteCommand> commands = Brain.AddInputs(cleanInput);
+                            if (commands.Any())
+                            {
+                                SQLUtil.BulkExecute(commands, "Saving Inputs", pb_ProgressTime, lb_ProgressTime, lb_ProgressStep, ProgressStart, token);
+                            }
+                        }
+
+                        string[] word_array = input.Split(' ');
+                        if (word_array.Length > 0)
+                        {
+                            List<SqliteCommand> commands = Brain.AddWords(word_array);
+                            if (commands.Any())
+                            {
+                                SQLUtil.BulkExecute(commands, "Saving Words", pb_ProgressTime, lb_ProgressTime, lb_ProgressStep, ProgressStart, token);
+                            }
+
+                            commands = Brain.AddPreWords(word_array);
+                            if (commands.Any())
+                            {
+                                SQLUtil.BulkExecute(commands, "Saving PreWords", pb_ProgressTime, lb_ProgressTime, lb_ProgressStep, ProgressStart, token);
+                            }
+
+                            commands = Brain.AddProWords(word_array);
+                            if (commands.Any())
+                            {
+                                SQLUtil.BulkExecute(commands, "Saving ProWords", pb_ProgressTime, lb_ProgressTime, lb_ProgressStep, ProgressStart, token);
+                            }
+                        }
                     }
 
                     count++;
@@ -581,25 +621,6 @@ public partial class ReadFile : ContentPage
                 inputs.Clear();
             }
 
-            await Task.Delay(1000, token);
-        }
-        catch (Exception ex)
-        {
-            Logger.AddLog("ReadFile.ProcessFile_PrepData", ex.Message, ex.StackTrace);
-        }
-    }
-
-    private async Task ProcessFile_SaveData(CancellationToken token)
-    {
-        try
-        {
-            if (!token.IsCancellationRequested)
-            {
-                SQLUtil.BulkExecute(commands, pb_ProgressTime, lb_ProgressTime, lb_ProgressStep, ProgressStart, token);
-            }
-
-            commands.Clear();
-            
             await Task.Delay(1000, token);
         }
         catch (Exception ex)
@@ -624,13 +645,14 @@ public partial class ReadFile : ContentPage
                 //Ignore ReadingTokenSource already disposed
             }
 
-            await DisplayAlert("Read File", "\"" + lb_ReadFile.Text + "\" has been read.\nTotal Processing Time: " + AppUtil.GetTime_Milliseconds(ProgressStart), "OK");
+            await DisplayAlert("Read File", "\"" + lb_ReadFile.Text + "\" has been read.\n\nTotal Processing Time: " + AppUtil.GetTime_Milliseconds(ProgressStart), "OK");
 
             lb_ReadFile.IsVisible = true;
             bt_Browse.IsVisible = true;
             bt_ReadFile.IsVisible = true;
 
             lb_ProgressTime.IsVisible = false;
+            lb_ProgressMain.IsVisible = false;
             lb_ProgressStep.IsVisible = false;
             pb_ProgressTime.IsVisible = false;
             bt_Cancel.IsVisible = false;

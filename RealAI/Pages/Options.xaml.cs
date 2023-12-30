@@ -104,7 +104,7 @@ public partial class Options : ContentPage
 
             sl_AttentionSpan = new Slider();
             sl_AttentionSpan.Minimum = 1;
-            sl_AttentionSpan.Maximum = 10;
+            sl_AttentionSpan.Maximum = 60;
             sl_AttentionSpan.Value = AttentionSpan;
             sl_AttentionSpan.BackgroundColor = BackgroundColor;
             sl_AttentionSpan.MinimumTrackColor = Color.FromRgb(0, 200, 255);

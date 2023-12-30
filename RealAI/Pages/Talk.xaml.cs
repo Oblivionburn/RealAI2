@@ -149,7 +149,7 @@ public partial class Talk : ContentPage
 
             //Input and Enter
             row++;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.25, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.3, GridUnitType.Star) });
             BoxView input_box = new BoxView();
             grid.Add(input_box, 0, row);
             Grid.SetColumnSpan(input_box, 6);
@@ -394,7 +394,10 @@ public partial class Talk : ContentPage
     {
         try
         {
-            AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] You: " + Brain.Input);
+            if (!Brain.GenerateAnotherResponse)
+            {
+                AddToHistory("[" + DateTime.Now.ToString("HH:mm:ss") + "] You: " + Brain.Input);
+            }
 
             string response = Brain.Respond(false);
             if (!string.IsNullOrEmpty(response))
@@ -417,7 +420,15 @@ public partial class Talk : ContentPage
         {
             if (!string.IsNullOrEmpty(SQLUtil.BrainFile))
             {
-                Brain.Input = txt_Input.Text;
+                if (!string.IsNullOrEmpty(txt_Input.Text))
+                {
+                    Brain.Input = txt_Input.Text;
+                    Brain.GenerateAnotherResponse = false;
+                }
+                else
+                {
+                    Brain.GenerateAnotherResponse = true;
+                }
 
                 ResponseStart = DateTime.Now;
 
@@ -426,7 +437,7 @@ public partial class Talk : ContentPage
             }
             else
             {
-                await DisplayAlert("Error", "No brain connected.", "OK");
+                await DisplayAlert("Error", "No brain connected. Go to Brains in menu to create or load one.", "OK");
             }
         }
         catch (Exception ex)

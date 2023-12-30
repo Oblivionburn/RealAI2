@@ -21,6 +21,8 @@ namespace RealAI
         public static string LastThought;
         public static string[] WordArray_Thinking;
 
+        public static bool GenerateAnotherResponse;
+
         #endregion
 
         #region Methods
@@ -33,7 +35,8 @@ namespace RealAI
 
             try
             {
-                for (var i = 0; i < old_string.Length; i++)
+                int length = old_string.Length;
+                for (var i = 0; i < length; i++)
                 {
                     string value = old_string[i].ToString();
                     if (!string.IsNullOrEmpty(value))
@@ -107,20 +110,21 @@ namespace RealAI
 
             try
             {
-                sb.Append(old_string);
-
-                for (var i = 1; i < sb.Length; i++)
+                int length = old_string.Length - 1;
+                for (int i = 0; i < length; i++)
                 {
-                    if (!NormalCharacters.IsMatch(sb[i].ToString()) &&
-                        sb[i].ToString() != ":" &&
-                        sb[i - 1] == ' ')
-                    {
-                        sb.Remove(i - 1, 1);
+                    string value = old_string[i].ToString();
+                    string next_value = old_string[i + 1].ToString();
 
-                        if (i > 1)
-                        {
-                            i--;
-                        }
+                    if (!NormalCharacters.IsMatch(next_value) &&
+                        next_value != ":" &&
+                        value == " ")
+                    {
+                        //Skip spaces before special characters
+                    }
+                    else
+                    {
+                        sb.Append(value);
                     }
                 }
             }
@@ -140,7 +144,8 @@ namespace RealAI
                 string gapped = GapSpecials(CleanInput);
                 WordArray = gapped.Trim(' ').Split(' ');
 
-                if (WordArray.Length > 0)
+                if (!GenerateAnotherResponse &&
+                    WordArray.Length > 0)
                 {
                     List<SqliteCommand> commands = new List<SqliteCommand>();
                     commands.AddRange(AddInputs(CleanInput));
@@ -343,7 +348,8 @@ namespace RealAI
                 List<string> pre_words = new List<string>();
                 List<int> distances = new List<int>();
 
-                for (int i = 1; i < word_array.Length; i++)
+                int length = word_array.Length;
+                for (int i = 1; i < length; i++)
                 {
                     int count = 1;
                     for (int j = i - 1; j >= 0; j--)
@@ -380,10 +386,11 @@ namespace RealAI
                 List<string> pro_words = new List<string>();
                 List<int> distances = new List<int>();
 
-                for (int i = 0; i < word_array.Length - 1; i++)
+                int length = word_array.Length - 1;
+                for (int i = 0; i < length; i++)
                 {
                     var count = 1;
-                    for (int j = i + 1; j <= word_array.Length - 1; j++)
+                    for (int j = i + 1; j <= length; j++)
                     {
                         if (!string.IsNullOrEmpty(word_array[i]) &&
                             !string.IsNullOrEmpty(word_array[j]))
@@ -505,7 +512,8 @@ namespace RealAI
                         AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.1, Talk.lb_ResponseTime, Talk.ResponseStart);
 
                         //Add input as output to last response
-                        if (!string.IsNullOrEmpty(LastResponse))
+                        if (!GenerateAnotherResponse &&
+                            !string.IsNullOrEmpty(LastResponse))
                         {
                             UpdateOutputs(CleanInput, LastResponse);
                         }
@@ -515,7 +523,8 @@ namespace RealAI
                         Topics = SQLUtil.Get_MinWords(WordArray);
                         AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.3, Talk.lb_ResponseTime, Talk.ResponseStart);
 
-                        if (Topics.Length > 0)
+                        if (!GenerateAnotherResponse &&
+                            Topics.Length > 0)
                         {
                             //Add words as topics for input
                             UpdateTopics(CleanInput, Topics);
@@ -806,7 +815,7 @@ namespace RealAI
 
             try
             {
-                if (old_string.Length > 0)
+                if (old_string.Any())
                 {
                     new_string = old_string;
 
@@ -821,10 +830,14 @@ namespace RealAI
                     new_string = UnGapSpecials(new_string);
 
                     //Set ending punctuation if missing
-                    char last_letter = new_string[new_string.Length - 1];
-                    if (NormalCharacters.IsMatch(last_letter.ToString()))
+                    int length = new_string.Length;
+                    if (length > 0)
                     {
-                        new_string += ".";
+                        char last_letter = new_string[length - 1];
+                        if (NormalCharacters.IsMatch(last_letter.ToString()))
+                        {
+                            new_string += ".";
+                        }
                     }
                 }
             }

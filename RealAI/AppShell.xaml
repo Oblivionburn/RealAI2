@@ -46,11 +46,11 @@
             Route="Brains"
         />
     </FlyoutItem>
-    <FlyoutItem Title="Options">
+    <FlyoutItem Title="Merge Brains">
         <ShellContent
-            Title="Options"
-            ContentTemplate="{DataTemplate local:Options}"
-            Route="Options"
+            Title="Merge Brains"
+            ContentTemplate="{DataTemplate local:MergeBrains}"
+            Route="MergeBrains"
         />
     </FlyoutItem>
     <FlyoutItem Title="Read File">
@@ -65,6 +65,13 @@
             Title="Fix Spelling"
             ContentTemplate="{DataTemplate local:FixSpelling}"
             Route="FixSpelling"
+        />
+    </FlyoutItem>
+    <FlyoutItem Title="Options">
+        <ShellContent
+            Title="Options"
+            ContentTemplate="{DataTemplate local:Options}"
+            Route="Options"
         />
     </FlyoutItem>
     <FlyoutItem Title="About">

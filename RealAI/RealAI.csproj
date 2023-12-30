@@ -76,6 +76,9 @@
 	  <MauiXaml Update="Pages\FixSpelling.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Pages\MergeBrains.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\Options.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
