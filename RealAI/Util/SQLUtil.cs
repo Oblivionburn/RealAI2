@@ -564,7 +564,7 @@ namespace RealAI.Util
                     DataTable data = GetData("SELECT Priority FROM Inputs WHERE Input = @input", parameters.ToArray());
                     if (data.Rows.Count > 0)
                     {
-                        string result = data.Rows[0].ItemArray[0] as string;
+                        string result = data.Rows[0].ItemArray[0].ToString();
                         if (!string.IsNullOrEmpty(result))
                         {
                             return int.Parse(result);
@@ -772,7 +772,7 @@ namespace RealAI.Util
                     int count = data.Rows.Count;
                     for (int i = 0; i < count; i++)
                     {
-                        string min_word = data.Rows[i].ItemArray[0] as string;
+                        string min_word = data.Rows[i].ItemArray[0].ToString();
                         if (!string.IsNullOrEmpty(min_word))
                         {
                             min_words.Add(min_word);
@@ -823,7 +823,7 @@ namespace RealAI.Util
                     int count = data.Rows.Count;
                     for (int i = 0; i < count; i++)
                     {
-                        string word = data.Rows[i].ItemArray[0] as string;
+                        string word = data.Rows[i].ItemArray[0].ToString();
                         if (!string.IsNullOrEmpty(word))
                         {
                             min_words.Add(word);
@@ -852,7 +852,7 @@ namespace RealAI.Util
                     if (data.Rows.Count > 0 &&
                         data.Rows[0].ItemArray.Length > 0)
                     {
-                        string result = data.Rows[0].ItemArray[0] as string;
+                        string result = data.Rows[0].ItemArray[0].ToString();
                         if (!string.IsNullOrEmpty(result))
                         {
                             return int.Parse(result);
@@ -918,7 +918,7 @@ namespace RealAI.Util
                     if (data.Rows.Count > 0 &&
                         data.Rows[0].ItemArray.Length > 0)
                     {
-                        string result = data.Rows[0].ItemArray[0] as string;
+                        string result = data.Rows[0].ItemArray[0].ToString();
                         if (!string.IsNullOrEmpty(result))
                         {
                             return int.Parse(result);
@@ -1868,7 +1868,7 @@ namespace RealAI.Util
                         DataTable outputData = GetData("SELECT DISTINCT Output FROM Outputs WHERE Input = @input", parms);
                         if (outputData.Rows.Count > 0)
                         {
-                            string output = outputData.Rows[0].ItemArray[0] as string;
+                            string output = outputData.Rows[0].ItemArray[0].ToString();
                             if (!string.IsNullOrEmpty(output))
                             {
                                 //Get the priority of the output from the Input table
@@ -2102,7 +2102,7 @@ namespace RealAI.Util
                     int rowCount = data.Rows.Count;
                     for (int i = 0; i < rowCount; i++)
                     {
-                        string output = data.Rows[i].ItemArray[0] as string;
+                        string output = data.Rows[i].ItemArray[0].ToString();
                         if (!string.IsNullOrEmpty(output))
                         {
                             outputs.Add(output);

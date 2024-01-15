@@ -110,17 +110,24 @@ namespace RealAI
 
             try
             {
-                int length = old_string.Length - 1;
+                int length = old_string.Length;
                 for (int i = 0; i < length; i++)
                 {
                     string value = old_string[i].ToString();
-                    string next_value = old_string[i + 1].ToString();
 
-                    if (!NormalCharacters.IsMatch(next_value) &&
-                        next_value != ":" &&
-                        value == " ")
+                    if (i < length - 1)
                     {
-                        //Skip spaces before special characters
+                        string next_value = old_string[i + 1].ToString();
+                        if (!NormalCharacters.IsMatch(next_value) &&
+                            next_value != ":" &&
+                            value == " ")
+                        {
+                            //Skip spaces before special characters
+                        }
+                        else
+                        {
+                            sb.Append(value);
+                        }
                     }
                     else
                     {
@@ -436,8 +443,8 @@ namespace RealAI
             try
             {
                 List<SqliteCommand> commands = new List<SqliteCommand>();
-                commands.AddRange(SQLUtil.Increase_OutputPriorities(output, input));
-                commands.AddRange(SQLUtil.Add_Outputs(output, input));
+                commands.AddRange(SQLUtil.Increase_OutputPriorities(input, output));
+                commands.AddRange(SQLUtil.Add_Outputs(input, output));
                 SQLUtil.BulkExecute(commands);
             }
             catch (Exception ex)
@@ -515,7 +522,7 @@ namespace RealAI
                         if (!GenerateAnotherResponse &&
                             !string.IsNullOrEmpty(LastResponse))
                         {
-                            UpdateOutputs(CleanInput, LastResponse);
+                            UpdateOutputs(LastResponse, CleanInput);
                         }
                         AppUtil.UpdateProgress(Talk.pb_ResponseTime, 0.2, Talk.lb_ResponseTime, Talk.ResponseStart);
 
@@ -965,7 +972,7 @@ namespace RealAI
                             if (!string.IsNullOrEmpty(LastThought) &&
                                 Options.CanLearnFromThinking)
                             {
-                                UpdateOutputs(Thought, LastThought);
+                                UpdateOutputs(LastThought, Thought);
                             }
 
                             //Set response as last response
