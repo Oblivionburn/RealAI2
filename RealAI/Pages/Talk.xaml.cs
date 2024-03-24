@@ -390,7 +390,7 @@ public partial class Talk : ContentPage
         return false;
     }
 
-    private void Respond()
+    private async void Respond()
     {
         try
         {
@@ -406,6 +406,12 @@ public partial class Talk : ContentPage
             }
 
             AppUtil.FinishProgress(pb_ResponseTime, lb_ResponseTime, ResponseStart);
+
+            if (Options.TTS)
+            {
+                await TextToSpeech.Default.SpeakAsync(response);
+            }
+
             ResetInput();
         }
         catch (Exception ex)

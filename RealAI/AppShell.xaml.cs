@@ -84,6 +84,16 @@ public partial class AppShell : Shell
                 Options.Initiate = bool.Parse(initiate);
             }
 
+            string tts = AppUtil.GetConfig("TTS");
+            if (string.IsNullOrEmpty(tts))
+            {
+                AppUtil.SetConfig("TTS", "False");
+            }
+            else
+            {
+                Options.TTS = bool.Parse(tts);
+            }
+
             string topicResponding = AppUtil.GetConfig("TopicResponding");
             if (string.IsNullOrEmpty(topicResponding))
             {

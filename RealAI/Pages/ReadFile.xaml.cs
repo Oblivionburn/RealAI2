@@ -329,6 +329,10 @@ public partial class ReadFile : ContentPage
                 await DisplayAlert("Read File", "\"" + lb_ReadFile.Text + "\" file not found.", "OK");
             }
         }
+        catch (TaskCanceledException t)
+        {
+
+        }
         catch (Exception ex)
         {
             Logger.AddLog("ReadFile.Bt_ReadFile_Clicked", ex.Message, ex.StackTrace);
@@ -386,10 +390,9 @@ public partial class ReadFile : ContentPage
                                 value == "\n" ||
                                 value == Environment.NewLine)
                             {
-
+                                
                             }
-                            else if (Brain.NormalCharacters.IsMatch(value) &&
-                                     value != " ")
+                            else if (Brain.NormalCharacters.IsMatch(value))
                             {
                                 if (replaced_semicolon)
                                 {
@@ -401,8 +404,7 @@ public partial class ReadFile : ContentPage
                                     stringBuilder.Append(value);
                                 }
                             }
-                            else if (!Brain.NormalCharacters.IsMatch(value) &&
-                                     value != "'" &&
+                            else if (value != "'" &&
                                      value != "’")
                             {
                                 if (value == ".")
@@ -438,17 +440,18 @@ public partial class ReadFile : ContentPage
                                         value = ".";
                                     }
 
-                                    stringBuilder.Append(" ");
-                                    stringBuilder.Append(value);
+                                    stringBuilder.Append(" " + value);
 
-                                    if (i < lineLength - 1)
+                                    if (i < lineLength - 1 &&
+                                        new_line[i + 1] != ' ')
                                     {
-                                        if (new_line[i + 1] != ' ')
-                                        {
-                                            stringBuilder.Append(" ");
-                                        }
+                                        stringBuilder.Append(" ");
                                     }
                                 }
+                            }
+                            else
+                            {
+                                stringBuilder.Append(value);
                             }
                         }
                     }
@@ -463,6 +466,10 @@ public partial class ReadFile : ContentPage
             }
 
             await Task.Delay(1000, token);
+        }
+        catch (TaskCanceledException t)
+        {
+
         }
         catch (Exception ex)
         {
@@ -544,6 +551,10 @@ public partial class ReadFile : ContentPage
 
             await Task.Delay(1000, token);
         }
+        catch (TaskCanceledException t)
+        {
+
+        }
         catch (Exception ex)
         {
             Logger.AddLog("ReadFile.ProcessFile_IdentifySentences", ex.Message, ex.StackTrace);
@@ -623,6 +634,10 @@ public partial class ReadFile : ContentPage
 
             await Task.Delay(1000, token);
         }
+        catch (TaskCanceledException t)
+        {
+
+        }
         catch (Exception ex)
         {
             Logger.AddLog("ReadFile.ProcessFile_SaveData", ex.Message, ex.StackTrace);
@@ -656,6 +671,10 @@ public partial class ReadFile : ContentPage
             lb_ProgressStep.IsVisible = false;
             pb_ProgressTime.IsVisible = false;
             bt_Cancel.IsVisible = false;
+        }
+        catch (TaskCanceledException t)
+        {
+
         }
         catch (Exception ex)
         {

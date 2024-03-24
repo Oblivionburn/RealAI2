@@ -1,9 +1,13 @@
+using Microsoft.Maui.Controls.Shapes;
 using RealAI.Util;
 
 namespace RealAI.Pages;
 
 public partial class Options : ContentPage
 {
+    public static Label lb_ThinkOptions;
+    public static Line ln_ThinkOptions;
+
 	public static int ThinkSpeed;
     public static Label lb_ThinkSpeed;
     public static Slider sl_ThinkSpeed;
@@ -16,6 +20,9 @@ public partial class Options : ContentPage
     public static Label lb_CanLearnFromThinking;
     public static Switch sw_CanLearnFromThinking;
 
+    public static Label lb_ConversationOptions;
+    public static Line ln_ConversationOptions;
+
     public static int AttentionSpan;
     public static Label lb_AttentionSpan;
     public static Slider sl_AttentionSpan;
@@ -23,6 +30,13 @@ public partial class Options : ContentPage
     public static bool Initiate;
     public static Label lb_Initiate;
     public static Switch sw_Initiate;
+
+    public static bool TTS;
+    public static Label lb_TTS;
+    public static Switch sw_TTS;
+
+    public static Label lb_RespondingOptions;
+    public static Line ln_RespondingOptions;
 
     public static bool TopicResponding = true;
     public static Label lb_Topic;
@@ -48,10 +62,23 @@ public partial class Options : ContentPage
         {
             BackgroundColor = Color.FromRgb(32, 32, 32);
 
+            lb_ThinkOptions = new Label();
+            lb_ThinkOptions.FontSize = 24;
+            lb_ThinkOptions.TextColor = Color.FromRgb(255, 255, 255);
+            lb_ThinkOptions.BackgroundColor = BackgroundColor;
+            lb_ThinkOptions.Text = "Thinking Options";
+            lb_ThinkOptions.HorizontalOptions = LayoutOptions.Fill;
+            lb_ThinkOptions.VerticalOptions = LayoutOptions.Start;
+
+            ln_ThinkOptions = new Line();
+            ln_ThinkOptions.HorizontalOptions = LayoutOptions.Fill;
+            ln_ThinkOptions.VerticalOptions = LayoutOptions.Center;
+            ln_ThinkOptions.BackgroundColor = Color.FromRgb(255, 255, 255);
+
             lb_ThinkSpeed = new Label();
             lb_ThinkSpeed.FontSize = 20;
             lb_ThinkSpeed.BackgroundColor = BackgroundColor;
-            lb_ThinkSpeed.Text = "Think Speed (in milliseconds): " + ThinkSpeed;
+            lb_ThinkSpeed.Text = "Think Delay (milliseconds): " + ThinkSpeed;
             lb_ThinkSpeed.HorizontalOptions = LayoutOptions.Fill;
             lb_ThinkSpeed.VerticalOptions = LayoutOptions.Start;
 
@@ -95,10 +122,23 @@ public partial class Options : ContentPage
             sw_CanLearnFromThinking.VerticalOptions = LayoutOptions.Center;
             sw_CanLearnFromThinking.Toggled += Sw_CanLearnFromThinking_Toggled;
 
+            lb_ConversationOptions = new Label();
+            lb_ConversationOptions.FontSize = 24;
+            lb_ConversationOptions.TextColor = Color.FromRgb(255, 255, 255);
+            lb_ConversationOptions.BackgroundColor = BackgroundColor;
+            lb_ConversationOptions.Text = "Conversation Options";
+            lb_ConversationOptions.HorizontalOptions = LayoutOptions.Fill;
+            lb_ConversationOptions.VerticalOptions = LayoutOptions.Start;
+
+            ln_ConversationOptions = new Line();
+            ln_ConversationOptions.HorizontalOptions = LayoutOptions.Fill;
+            ln_ConversationOptions.VerticalOptions = LayoutOptions.Center;
+            ln_ConversationOptions.BackgroundColor = Color.FromRgb(255, 255, 255);
+
             lb_AttentionSpan = new Label();
             lb_AttentionSpan.FontSize = 20;
             lb_AttentionSpan.BackgroundColor = BackgroundColor;
-            lb_AttentionSpan.Text = "Attention Span (in seconds): " + AttentionSpan;
+            lb_AttentionSpan.Text = "Conversation Delay (seconds): " + AttentionSpan;
             lb_AttentionSpan.HorizontalOptions = LayoutOptions.Fill;
             lb_AttentionSpan.VerticalOptions = LayoutOptions.Start;
 
@@ -127,6 +167,33 @@ public partial class Options : ContentPage
             sw_Initiate.HorizontalOptions = LayoutOptions.Start;
             sw_Initiate.VerticalOptions = LayoutOptions.Center;
             sw_Initiate.Toggled += Sw_Initiate_Toggled;
+
+            lb_TTS = new Label();
+            lb_TTS.FontSize = 20;
+            lb_TTS.Text = "Text-To-Speech:";
+            lb_TTS.BackgroundColor = BackgroundColor;
+            lb_TTS.HorizontalOptions = LayoutOptions.Start;
+            lb_TTS.VerticalOptions = LayoutOptions.Center;
+
+            sw_TTS = new Switch();
+            sw_TTS.IsToggled = TTS;
+            sw_TTS.BackgroundColor = BackgroundColor;
+            sw_TTS.HorizontalOptions = LayoutOptions.Start;
+            sw_TTS.VerticalOptions = LayoutOptions.Center;
+            sw_TTS.Toggled += Sw_TTS_Toggled;
+
+            lb_RespondingOptions = new Label();
+            lb_RespondingOptions.FontSize = 24;
+            lb_RespondingOptions.TextColor = Color.FromRgb(255, 255, 255);
+            lb_RespondingOptions.BackgroundColor = BackgroundColor;
+            lb_RespondingOptions.Text = "Responding Options";
+            lb_RespondingOptions.HorizontalOptions = LayoutOptions.Fill;
+            lb_RespondingOptions.VerticalOptions = LayoutOptions.Start;
+
+            ln_RespondingOptions = new Line();
+            ln_RespondingOptions.HorizontalOptions = LayoutOptions.Fill;
+            ln_RespondingOptions.VerticalOptions = LayoutOptions.Center;
+            ln_RespondingOptions.BackgroundColor = Color.FromRgb(255, 255, 255);
 
             lb_Topic = new Label();
             lb_Topic.FontSize = 20;
@@ -193,9 +260,30 @@ public partial class Options : ContentPage
             grid.ColumnDefinitions.Add(new ColumnDefinition());
             grid.ColumnDefinitions.Add(new ColumnDefinition());
 
-            //Think Speed
+            //Think Options Header
             int row = 0;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.15, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView lb_thinkOptions_box = new BoxView();
+            lb_thinkOptions_box.Color = BackgroundColor;
+            grid.Add(lb_thinkOptions_box, 0, row);
+            Grid.SetColumnSpan(lb_thinkOptions_box, 8);
+
+            grid.Add(lb_ThinkOptions, 0, row);
+            Grid.SetColumnSpan(lb_ThinkOptions, 8);
+
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.01, GridUnitType.Star) });
+            BoxView ln_thinkOptions_box = new BoxView();
+            ln_thinkOptions_box.Color = BackgroundColor;
+            grid.Add(ln_thinkOptions_box, 0, row);
+            Grid.SetColumnSpan(ln_thinkOptions_box, 8);
+
+            grid.Add(ln_ThinkOptions, 0, row);
+            Grid.SetColumnSpan(ln_ThinkOptions, 8);
+
+            //Think Speed
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
             BoxView lb_thinkSpeed_box = new BoxView();
             lb_thinkSpeed_box.Color = BackgroundColor;
             grid.Add(lb_thinkSpeed_box, 0, row);
@@ -220,18 +308,15 @@ public partial class Options : ContentPage
             BoxView lb_canThink_box = new BoxView();
             lb_canThink_box.Color = BackgroundColor;
             grid.Add(lb_canThink_box, 0, row);
-            Grid.SetColumnSpan(lb_canThink_box, 2);
+            Grid.SetColumnSpan(lb_canThink_box, 7);
 
             grid.Add(lb_CanThink, 0, row);
-            Grid.SetColumnSpan(lb_CanThink, 2);
+            Grid.SetColumnSpan(lb_CanThink, 7);
 
             BoxView sw_canThink_box = new BoxView();
             sw_canThink_box.Color = BackgroundColor;
-            grid.Add(sw_canThink_box, 2, row);
-            Grid.SetColumnSpan(sw_canThink_box, 1);
-
-            grid.Add(sw_CanThink, 2, row);
-            Grid.SetColumnSpan(sw_CanThink, 1);
+            grid.Add(sw_canThink_box, 6, row);
+            grid.Add(sw_CanThink, 6, row);
 
             //Can Learn From Thinking
             row++;
@@ -239,15 +324,15 @@ public partial class Options : ContentPage
             BoxView lb_canLearn_box = new BoxView();
             lb_canLearn_box.Color = BackgroundColor;
             grid.Add(lb_canLearn_box, 0, row);
-            Grid.SetColumnSpan(lb_canLearn_box, 6);
+            Grid.SetColumnSpan(lb_canLearn_box, 7);
 
             grid.Add(lb_CanLearnFromThinking, 0, row);
-            Grid.SetColumnSpan(lb_CanLearnFromThinking, 6);
+            Grid.SetColumnSpan(lb_CanLearnFromThinking, 7);
 
             BoxView sw_canLearn_box = new BoxView();
             sw_canLearn_box.Color = BackgroundColor;
-            grid.Add(sw_canLearn_box, 5, row);
-            grid.Add(sw_CanLearnFromThinking, 5, row);
+            grid.Add(sw_canLearn_box, 6, row);
+            grid.Add(sw_CanLearnFromThinking, 6, row);
 
             //Empty space between Thinking and Attention options
             row++;
@@ -257,9 +342,30 @@ public partial class Options : ContentPage
             grid.Add(first_empty_box, 0, row);
             Grid.SetColumnSpan(first_empty_box, 8);
 
+            //Conversation Options Header
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView lb_conversationOptions_box = new BoxView();
+            lb_conversationOptions_box.Color = BackgroundColor;
+            grid.Add(lb_conversationOptions_box, 0, row);
+            Grid.SetColumnSpan(lb_conversationOptions_box, 8);
+
+            grid.Add(lb_ConversationOptions, 0, row);
+            Grid.SetColumnSpan(lb_ConversationOptions, 8);
+
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.01, GridUnitType.Star) });
+            BoxView ln_conversationOptions_box = new BoxView();
+            ln_conversationOptions_box.Color = BackgroundColor;
+            grid.Add(ln_conversationOptions_box, 0, row);
+            Grid.SetColumnSpan(ln_conversationOptions_box, 8);
+
+            grid.Add(ln_ConversationOptions, 0, row);
+            Grid.SetColumnSpan(ln_ConversationOptions, 8);
+
             //Attention Span
             row++;
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.15, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
             BoxView lb_attentionSpan_box = new BoxView();
             lb_attentionSpan_box.Color = BackgroundColor;
             grid.Add(lb_attentionSpan_box, 0, row);
@@ -284,17 +390,17 @@ public partial class Options : ContentPage
             BoxView lb_initiate_box = new BoxView();
             lb_initiate_box.Color = BackgroundColor;
             grid.Add(lb_initiate_box, 0, row);
-            Grid.SetColumnSpan(lb_initiate_box, 6);
+            Grid.SetColumnSpan(lb_initiate_box, 7);
 
             grid.Add(lb_Initiate, 0, row);
-            Grid.SetColumnSpan(lb_Initiate, 6);
+            Grid.SetColumnSpan(lb_Initiate, 7);
 
             BoxView sw_initiate_box = new BoxView();
             sw_initiate_box.Color = BackgroundColor;
-            grid.Add(sw_initiate_box, 5, row);
-            grid.Add(sw_Initiate, 5, row);
+            grid.Add(sw_initiate_box, 6, row);
+            grid.Add(sw_Initiate, 6, row);
 
-            //Empty space between Thinking and Attention options
+            //Empty space between Initiate and TTS
             row++;
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
             BoxView second_empty_box = new BoxView();
@@ -302,21 +408,66 @@ public partial class Options : ContentPage
             grid.Add(second_empty_box, 0, row);
             Grid.SetColumnSpan(second_empty_box, 8);
 
+            //TTS
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView lb_tts_box = new BoxView();
+            lb_tts_box.Color = BackgroundColor;
+            grid.Add(lb_tts_box, 0, row);
+            Grid.SetColumnSpan(lb_tts_box, 7);
+
+            grid.Add(lb_TTS, 0, row);
+            Grid.SetColumnSpan(lb_TTS, 7);
+
+            BoxView sw_tts_box = new BoxView();
+            sw_tts_box.Color = BackgroundColor;
+            grid.Add(sw_tts_box, 6, row);
+            grid.Add(sw_TTS, 6, row);
+
+            //Empty space between TTS and Responding options
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView third_empty_box = new BoxView();
+            third_empty_box.Color = BackgroundColor;
+            grid.Add(third_empty_box, 0, row);
+            Grid.SetColumnSpan(third_empty_box, 8);
+
+            //Responding Options Header
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
+            BoxView lb_respondingOptions_box = new BoxView();
+            lb_respondingOptions_box.Color = BackgroundColor;
+            grid.Add(lb_respondingOptions_box, 0, row);
+            Grid.SetColumnSpan(lb_respondingOptions_box, 8);
+
+            grid.Add(lb_RespondingOptions, 0, row);
+            Grid.SetColumnSpan(lb_RespondingOptions, 8);
+
+            row++;
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.01, GridUnitType.Star) });
+            BoxView ln_respondingOptions_box = new BoxView();
+            ln_respondingOptions_box.Color = BackgroundColor;
+            grid.Add(ln_respondingOptions_box, 0, row);
+            Grid.SetColumnSpan(ln_respondingOptions_box, 8);
+
+            grid.Add(ln_RespondingOptions, 0, row);
+            Grid.SetColumnSpan(ln_RespondingOptions, 8);
+
             //Topic Responding
             row++;
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.2, GridUnitType.Star) });
             BoxView lb_topic_box = new BoxView();
             lb_topic_box.Color = BackgroundColor;
             grid.Add(lb_topic_box, 0, row);
-            Grid.SetColumnSpan(lb_topic_box, 6);
+            Grid.SetColumnSpan(lb_topic_box, 7);
 
             grid.Add(lb_Topic, 0, row);
-            Grid.SetColumnSpan(lb_Topic, 6);
+            Grid.SetColumnSpan(lb_Topic, 7);
 
             BoxView sw_topic_box = new BoxView();
             sw_topic_box.Color = BackgroundColor;
-            grid.Add(sw_topic_box, 5, row);
-            grid.Add(sw_Topic, 5, row);
+            grid.Add(sw_topic_box, 6, row);
+            grid.Add(sw_Topic, 6, row);
 
             //Whole Responding
             row++;
@@ -324,15 +475,15 @@ public partial class Options : ContentPage
             BoxView lb_whole_box = new BoxView();
             lb_whole_box.Color = BackgroundColor;
             grid.Add(lb_whole_box, 0, row);
-            Grid.SetColumnSpan(lb_whole_box, 6);
+            Grid.SetColumnSpan(lb_whole_box, 7);
 
             grid.Add(lb_Whole, 0, row);
-            Grid.SetColumnSpan(lb_Whole, 6);
+            Grid.SetColumnSpan(lb_Whole, 7);
 
             BoxView sw_whole_box = new BoxView();
             sw_whole_box.Color = BackgroundColor;
-            grid.Add(sw_whole_box, 5, row);
-            grid.Add(sw_Whole, 5, row);
+            grid.Add(sw_whole_box, 6, row);
+            grid.Add(sw_Whole, 6, row);
 
             //Procedural Responding
             row++;
@@ -340,15 +491,15 @@ public partial class Options : ContentPage
             BoxView lb_procedural_box = new BoxView();
             lb_procedural_box.Color = BackgroundColor;
             grid.Add(lb_procedural_box, 0, row);
-            Grid.SetColumnSpan(lb_procedural_box, 6);
+            Grid.SetColumnSpan(lb_procedural_box, 7);
 
             grid.Add(lb_Procedural, 0, row);
-            Grid.SetColumnSpan(lb_Procedural, 6);
+            Grid.SetColumnSpan(lb_Procedural, 7);
 
             BoxView sw_procedural_box = new BoxView();
             sw_procedural_box.Color = BackgroundColor;
-            grid.Add(sw_procedural_box, 5, row);
-            grid.Add(sw_Procedural, 5, row);
+            grid.Add(sw_procedural_box, 6, row);
+            grid.Add(sw_Procedural, 6, row);
 
             //Empty space underneath to push everything up
             row++;
@@ -402,7 +553,7 @@ public partial class Options : ContentPage
             ThinkSpeed = (int)sl_ThinkSpeed.Value;
             AppUtil.SetConfig("ThinkSpeed", ThinkSpeed.ToString());
 
-            lb_ThinkSpeed.Text = "Think Speed (in milliseconds): " + ThinkSpeed;
+            lb_ThinkSpeed.Text = "Think Delay (milliseconds): " + ThinkSpeed;
 
             if (Thinking.ThinkTimer != null)
             {
@@ -423,7 +574,7 @@ public partial class Options : ContentPage
             AttentionSpan = (int)sl_AttentionSpan.Value;
             AppUtil.SetConfig("AttentionSpan", AttentionSpan.ToString());
 
-            lb_AttentionSpan.Text = "Attention Span (in seconds): " + AttentionSpan;
+            lb_AttentionSpan.Text = "Conversation Delay (seconds): " + AttentionSpan;
 
             if (Talk.AttentionTimer != null)
             {
@@ -448,6 +599,20 @@ public partial class Options : ContentPage
         {
             await DisplayAlert("Error", ex.Message, "OK");
             Logger.AddLog("Options.Sw_Initiate_Toggled", ex.Message, ex.StackTrace);
+        }
+    }
+
+    private async void Sw_TTS_Toggled(object sender, ToggledEventArgs e)
+    {
+        try
+        {
+            TTS = sw_TTS.IsToggled;
+            AppUtil.SetConfig("TTS", TTS.ToString());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+            Logger.AddLog("Options.Sw_TTS_Toggled", ex.Message, ex.StackTrace);
         }
     }
 
